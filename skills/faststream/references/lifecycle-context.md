@@ -90,14 +90,14 @@ async def handler(msg: OrderCreated, logger: Logger) -> None:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Ресурсы-глобалы без закрытия | lifespan + shutdown |
-| Бизнес-логика в middleware | только сквозные задачи |
-| `print`/f-строки | `logger.info("event", key=value)` |
-| `correlation_id` игнорируется | прокидывать в contextvars |
-| Subject'ы в сервисах | config/handler |
-| `os.getenv()` вне config | `pydantic-settings` |
+| ❌                            | ✅                                |
+| ----------------------------- | --------------------------------- |
+| Ресурсы-глобалы без закрытия  | lifespan + shutdown               |
+| Бизнес-логика в middleware    | только сквозные задачи            |
+| `print`/f-строки              | `logger.info("event", key=value)` |
+| `correlation_id` игнорируется | прокидывать в contextvars         |
+| Subject'ы в сервисах          | config/handler                    |
+| `os.getenv()` вне config      | `pydantic-settings`               |
 
 ## Чек-лист
 

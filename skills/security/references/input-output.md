@@ -115,15 +115,15 @@ class UserCreate(BaseModel):
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| f-строка в SQL | параметризация/ORM |
-| `|safe`/`mark_safe` | автоэкранирование |
-| `shell=True` с вводом | список аргументов |
-| `open(f"/uploads/{name}")` | `basename` + проверка |
-| `requests.get(user_url)` | allowlist + блок внутренних |
-| `pickle`/`eval`/`yaml.load` | JSON/Pydantic/`safe_load` |
-| Доверие расширению файла | проверка содержимого |
+| ❌                          | ✅                          |
+| --------------------------- | --------------------------- |
+| f-строка в SQL              | параметризация/ORM          |
+| `                           | safe`/`mark_safe`           | автоэкранирование |
+| `shell=True` с вводом       | список аргументов           |
+| `open(f"/uploads/{name}")`  | `basename` + проверка       |
+| `requests.get(user_url)`    | allowlist + блок внутренних |
+| `pickle`/`eval`/`yaml.load` | JSON/Pydantic/`safe_load`   |
+| Доверие расширению файла    | проверка содержимого        |
 
 ## Чек-лист
 

@@ -5,13 +5,13 @@ BDD — основное сквозное покрытие монорепози�
 
 ## Слои и ответственность
 
-| Слой | Путь | Делает | Не делает |
-|---|---|---|---|
-| Features | `features/` | Gherkin: бизнес-поведение | технические детали |
-| Step Definitions | `tests/step_definitions/` | Gherkin → Page Object / Client | селекторы, HTTP, SQL |
-| Page Objects / Clients | `tests/clients/` | UI/API-взаимодействие | бизнес-ожидания |
-| Utils | `tests/utils/` | генерация данных, конфиг | шаги/ассерты |
-| Fixtures | `conftest.py` | ресурсы, контекст, cleanup | бизнес-логика |
+| Слой                   | Путь                      | Делает                         | Не делает            |
+| ---------------------- | ------------------------- | ------------------------------ | -------------------- |
+| Features               | `features/`               | Gherkin: бизнес-поведение      | технические детали   |
+| Step Definitions       | `tests/step_definitions/` | Gherkin → Page Object / Client | селекторы, HTTP, SQL |
+| Page Objects / Clients | `tests/clients/`          | UI/API-взаимодействие          | бизнес-ожидания      |
+| Utils                  | `tests/utils/`            | генерация данных, конфиг       | шаги/ассерты         |
+| Fixtures               | `conftest.py`             | ресурсы, контекст, cleanup     | бизнес-логика        |
 
 Правило: **шаг вызывает один метод** Page Object / Client. Никакого
 Selenium/httpx-кода в step-функциях.
@@ -90,13 +90,13 @@ def pytest_bdd_apply_tag(tag, function):
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Технические детали в `.feature` | Только бизнес-язык |
-| Вся логика в step-функции | Page Object / Client |
-| Сценарии зависят от порядка | Полная изоляция |
-| Глобальные переменные | `context` / `target_fixture` |
-| Один feature на весь проект | Разбиение по доменам |
+| ❌                               | ✅                             |
+| -------------------------------- | ------------------------------ |
+| Технические детали в `.feature`  | Только бизнес-язык             |
+| Вся логика в step-функции        | Page Object / Client           |
+| Сценарии зависят от порядка      | Полная изоляция                |
+| Глобальные переменные            | `context` / `target_fixture`   |
+| Один feature на весь проект      | Разбиение по доменам           |
 | Теги без регистрации в `markers` | `--strict-markers` + `markers` |
 
 ## Чек-лист

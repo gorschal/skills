@@ -67,32 +67,39 @@ Django отвечает за лендинг и кабинет мерчанта, 
 Аннотированное дерево: приложения и их зона ответственности.
 
 ```markdown
+
 ```
+
 django/
-├── core/        # Конфигурация: settings, exceptions, middleware, urls
-├── landing/     # Лендинг и passwordless-авторизация
-├── dashboard/   # Кабинет мерчанта (CRUD аккаунтов)
-├── payment/     # Checkout, слушатель блокчейна, webhook, метрики
+├── core/ # Конфигурация: settings, exceptions, middleware, urls
+├── landing/ # Лендинг и passwordless-авторизация
+├── dashboard/ # Кабинет мерчанта (CRUD аккаунтов)
+├── payment/ # Checkout, слушатель блокчейна, webhook, метрики
 └── manage.py
+
 ```
+
 ```
 
 ## Локальная установка
 
 Предпочтительный способ (Docker из корня монорепозитория) + таблица сервисов/URL.
 
-```markdown
+````markdown
 ```bash
 docker compose up --watch
 ```
+````
 
-| Сервис | URL |
-| --- | --- |
-| Django web-app | http://localhost:8000 |
-| Django Admin | http://localhost:8000/admin |
-| FastAPI API | http://localhost:8080 |
-| PostgreSQL | localhost:5432 |
+| Сервис         | URL                         |
+| -------------- | --------------------------- |
+| Django web-app | http://localhost:8000       |
+| Django Admin   | http://localhost:8000/admin |
+| FastAPI API    | http://localhost:8080       |
+| PostgreSQL     | localhost:5432              |
+
 ```
+
 ```
 
 ## Прогрессивное раскрытие (`<details>`)
@@ -100,7 +107,7 @@ docker compose up --watch
 Длинные/опциональные блоки прятать в `<details>`, чтобы README оставался
 сканируемым: команды, диаграммы, большие таблицы.
 
-```markdown
+````markdown
 <details>
 <summary><b>Контроль качества</b></summary>
 
@@ -109,6 +116,8 @@ ruff check
 ruff format --check
 python manage.py test
 ```
+````
+
 </details>
 ```
 
@@ -119,11 +128,11 @@ python manage.py test
 ```markdown
 ### Dashboard (требует авторизации)
 
-| Метод | Путь | Описание |
-| --- | --- | --- |
-| `GET` | `/accounts/` | Список аккаунтов |
-| `GET`/`POST` | `/accounts/create/` | Создание аккаунта |
-| `POST` | `/accounts/<uuid:pk>/delete/` | Удаление |
+| Метод        | Путь                          | Описание          |
+| ------------ | ----------------------------- | ----------------- |
+| `GET`        | `/accounts/`                  | Список аккаунтов  |
+| `GET`/`POST` | `/accounts/create/`           | Создание аккаунта |
+| `POST`       | `/accounts/<uuid:pk>/delete/` | Удаление          |
 ```
 
 ## Management-команды
@@ -131,7 +140,7 @@ python manage.py test
 Назначение, поведение (например, «один проход — вешать на cron»), env, коды выхода,
 пример cron.
 
-```markdown
+````markdown
 ### Коды выхода (для cron-алертов)
 
 - `0` — успех или «нечего делать»;
@@ -140,7 +149,9 @@ python manage.py test
 ```cron
 */5 * * * * cd /opt/project && .venv/bin/python manage.py treasury_keeper >> /var/log/keeper.log 2>&1
 ```
-```
+````
+
+````
 
 ## Переменные окружения
 
@@ -164,7 +175,8 @@ mermaid (sequence/ERD) — в `<details>`, чтобы не перегружат�
 erDiagram
     User ||--o{ Account : "has many"
     Account ||--o{ PaymentInfo : "has many"
-```
+````
+
 </details>
 ```
 
@@ -185,15 +197,15 @@ README хранит **минимальную** заметку — «как пе�
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| README противоречит коду | сверить и починить |
-| «В современном мире…» | назначение в 1–2 строках |
-| Дублировать конфиги | ссылаться |
-| README как runbook | деплой-заметка + ссылка |
-| Всё полотно без `<details>` | прятать длинные блоки |
-| Бейджи ради бейджей | компактный ряд стека |
-| «TODO: написать документацию» | честные строки сейчас |
+| ❌                             | ✅                        |
+| ------------------------------ | ------------------------- |
+| README противоречит коду       | сверить и починить        |
+| «В современном мире…»          | назначение в 1–2 строках  |
+| Дублировать конфиги            | ссылаться                 |
+| README как runbook             | деплой-заметка + ссылка   |
+| Всё полотно без `<details>`    | прятать длинные блоки     |
+| Бейджи ради бейджей            | компактный ряд стека      |
+| «TODO: написать документацию»  | честные строки сейчас     |
 | Описание внутренней реализации | в ARCHITECTURE/docstrings |
 
 ## Чек-лист

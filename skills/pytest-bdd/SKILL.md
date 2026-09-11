@@ -47,13 +47,13 @@ UI/API — в Page Objects / Clients. В монорепозитории **BDD �
 
 ## Архитектура (слои)
 
-| Слой | Путь | Ответственность |
-|---|---|---|
-| Features | `features/` | Только Gherkin |
-| Step Definitions | `tests/step_definitions/` | Связка Gherkin → Page Object / Client |
-| Page Objects / Clients | `tests/clients/` | UI (Selenium/Playwright) и API (httpx) |
-| Utils / Helpers | `tests/utils/` | Генераторы данных, конфиг |
-| Fixtures | `conftest.py`, `step_definitions/conftest.py` | Браузер, клиент, контекст |
+| Слой                   | Путь                                          | Ответственность                        |
+| ---------------------- | --------------------------------------------- | -------------------------------------- |
+| Features               | `features/`                                   | Только Gherkin                         |
+| Step Definitions       | `tests/step_definitions/`                     | Связка Gherkin → Page Object / Client  |
+| Page Objects / Clients | `tests/clients/`                              | UI (Selenium/Playwright) и API (httpx) |
+| Utils / Helpers        | `tests/utils/`                                | Генераторы данных, конфиг              |
+| Fixtures               | `conftest.py`, `step_definitions/conftest.py` | Браузер, клиент, контекст              |
 
 ## Структура проекта
 
@@ -180,19 +180,19 @@ def pytest_bdd_step_error(request, scenario, step, **kwargs):
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| Логика/селекторы в `.feature` | Только бизнес-язык |
-| Selenium/httpx в step-функции | Вызов Page Object / Client |
-| Шаг без `target_fixture`, но с возвратом | `target_fixture="..."` |
-| `time.sleep()` | `WebDriverWait` + Expected Conditions |
-| Глобальные переменные | `context` / `target_fixture` |
-| Смешение UI + API + БД в одном шаге | Разделение ответственности |
-| Дублирование шагов | `common_steps.py` / `conftest.py` |
-| Сценарий > 15 шагов | Разбить на несколько |
-| `When`/`Then` в `Background` | Только `Given` |
-| `@wip` в CI | Гонять `not wip` |
-| Прод-секреты в репозитории | `data/`/`.env` |
+| ❌ Запрещено                             | ✅ Правильно                          |
+| ---------------------------------------- | ------------------------------------- |
+| Логика/селекторы в `.feature`            | Только бизнес-язык                    |
+| Selenium/httpx в step-функции            | Вызов Page Object / Client            |
+| Шаг без `target_fixture`, но с возвратом | `target_fixture="..."`                |
+| `time.sleep()`                           | `WebDriverWait` + Expected Conditions |
+| Глобальные переменные                    | `context` / `target_fixture`          |
+| Смешение UI + API + БД в одном шаге      | Разделение ответственности            |
+| Дублирование шагов                       | `common_steps.py` / `conftest.py`     |
+| Сценарий > 15 шагов                      | Разбить на несколько                  |
+| `When`/`Then` в `Background`             | Только `Given`                        |
+| `@wip` в CI                              | Гонять `not wip`                      |
+| Прод-секреты в репозитории               | `data/`/`.env`                        |
 
 ## Чек-лист code review
 
@@ -211,14 +211,14 @@ def pytest_bdd_step_error(request, scenario, step, **kwargs):
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Архитектура, слои, структура, теги | [references/architecture.md](references/architecture.md) | Организация проекта и слоёв |
-| Gherkin | [references/gherkin.md](references/gherkin.md) | Написание feature-файлов |
-| Step definitions | [references/steps.md](references/steps.md) | Шаги, парсеры, `target_fixture`, хуки |
-| Page Objects / Clients | [references/page-objects.md](references/page-objects.md) | UI/API-обёртки, ожидания |
-| Фикстуры и контекст | [references/fixtures-context.md](references/fixtures-context.md) | Браузер, клиент, состояние |
-| Отчёты и CI | [references/reporting-ci.md](references/reporting-ci.md) | Логи, скриншоты, отчёты, параллельность |
+| Тема                               | Reference                                                        | Загружать когда                         |
+| ---------------------------------- | ---------------------------------------------------------------- | --------------------------------------- |
+| Архитектура, слои, структура, теги | [references/architecture.md](references/architecture.md)         | Организация проекта и слоёв             |
+| Gherkin                            | [references/gherkin.md](references/gherkin.md)                   | Написание feature-файлов                |
+| Step definitions                   | [references/steps.md](references/steps.md)                       | Шаги, парсеры, `target_fixture`, хуки   |
+| Page Objects / Clients             | [references/page-objects.md](references/page-objects.md)         | UI/API-обёртки, ожидания                |
+| Фикстуры и контекст                | [references/fixtures-context.md](references/fixtures-context.md) | Браузер, клиент, состояние              |
+| Отчёты и CI                        | [references/reporting-ci.md](references/reporting-ci.md)         | Логи, скриншоты, отчёты, параллельность |
 
 ## Связанные навыки
 

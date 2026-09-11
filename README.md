@@ -14,26 +14,26 @@ Python, Django, FastAPI, FastStream, aiogram и сквозные темы (бе�
 
 ## Навыки
 
-| Навык | Назначение |
-|---|---|
-| `python` | язык: слои, типизация, async, ошибки, логи, тесты, доки, инструменты |
-| `django` | Django 5.x: слои, ORM, selectors, forms, транзакции, миграции |
-| `fastapi` | FastAPI: 4 слоя, read-only данные, DI, Pydantic v2, RFC 7807 |
-| `pytest-bdd` | BDD/Gherkin, step definitions, Page Objects, отчёты, CI |
-| `faststream` | FastStream 0.7.x + NATS: handlers, AckPolicy, идемпотентность |
-| `aiogram` | aiogram 3.x: routers, FSM, flood-control, deploy |
-| `security` | OWASP, auth, инъекции, секреты, security review |
-| `postgres` | индексы, планы, JSONB, партиции, maintenance, репликация |
-| `migration-safety` | безопасные Django-миграции (zero-downtime, backfill) |
-| `api-design` | REST, пагинация, ошибки (RFC 7807), версионирование, OpenAPI |
-| `python-testing` | pytest unit/integration, моки, async, антипаттерны |
-| `documentation` | README, ADR, аудит доков |
-| `git-commits` | атомарные коммиты, ветвление, Conventional Commits |
-| `python-audit` | аудит готовности: статанализ, 8 испытаний, баллы |
-| `solidity` | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит |
-| `docker` | Dockerfile (multi-stage, non-root), docker-compose |
-| `javascript` | базовые принципы JS/Node (ES2023+, async, ESM) |
-| `php` | базовые принципы PHP (PSR-12, слои, безопасность, платформы) |
+| Навык              | Назначение                                                           |
+| ------------------ | -------------------------------------------------------------------- |
+| `python`           | язык: слои, типизация, async, ошибки, логи, тесты, доки, инструменты |
+| `django`           | Django 5.x: слои, ORM, selectors, forms, транзакции, миграции        |
+| `fastapi`          | FastAPI: 4 слоя, read-only данные, DI, Pydantic v2, RFC 7807         |
+| `pytest-bdd`       | BDD/Gherkin, step definitions, Page Objects, отчёты, CI              |
+| `faststream`       | FastStream 0.7.x + NATS: handlers, AckPolicy, идемпотентность        |
+| `aiogram`          | aiogram 3.x: routers, FSM, flood-control, deploy                     |
+| `security`         | OWASP, auth, инъекции, секреты, security review                      |
+| `postgres`         | индексы, планы, JSONB, партиции, maintenance, репликация             |
+| `migration-safety` | безопасные Django-миграции (zero-downtime, backfill)                 |
+| `api-design`       | REST, пагинация, ошибки (RFC 7807), версионирование, OpenAPI         |
+| `python-testing`   | pytest unit/integration, моки, async, антипаттерны                   |
+| `documentation`    | README, ADR, аудит доков                                             |
+| `git-commits`      | атомарные коммиты, ветвление, Conventional Commits                   |
+| `python-audit`     | аудит готовности: статанализ, 8 испытаний, баллы                     |
+| `solidity`         | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит             |
+| `docker`           | Dockerfile (multi-stage, non-root), docker-compose                   |
+| `javascript`       | базовые принципы JS/Node (ES2023+, async, ESM)                       |
+| `php`              | базовые принципы PHP (PSR-12, слои, безопасность, платформы)         |
 
 Версии и история — в [CHANGELOG.md](CHANGELOG.md); план и решения — в
 [ROADMAP.md](ROADMAP.md).
@@ -107,12 +107,12 @@ skills/
 
 **Рекомендуемые:**
 
-| Плагин | Зачем |
-|---|---|
-| `opencode-vibeguard` | Редактирует секреты/PII в плейсхолдеры до отправки в LLM, восстанавливает локально |
-| `opencode-dynamic-context-pruning` | Чистит устаревшие tool-output'ы → экономия токенов |
-| `opencode-websearch-cited` | Нативный веб-поиск со ссылками |
-| `opencode-notify` | Уведомления о завершении/ошибках (в desktop-приложении уже есть) |
+| Плагин                             | Зачем                                                                              |
+| ---------------------------------- | ---------------------------------------------------------------------------------- |
+| `opencode-vibeguard`               | Редактирует секреты/PII в плейсхолдеры до отправки в LLM, восстанавливает локально |
+| `opencode-dynamic-context-pruning` | Чистит устаревшие tool-output'ы → экономия токенов                                 |
+| `opencode-websearch-cited`         | Нативный веб-поиск со ссылками                                                     |
+| `opencode-notify`                  | Уведомления о завершении/ошибках (в desktop-приложении уже есть)                   |
 
 **Ситуативно:** `opencode-shell-strategy` (защита от TTY-зависаний),
 `opencode-pty` (долгоживущие процессы), `opencode-worktree` (git worktree),
@@ -128,11 +128,7 @@ skills/
 {
   "$schema": "https://opencode.ai/config.json",
   "lsp": true,
-  "plugin": [
-    "opencode-vibeguard",
-    "opencode-dynamic-context-pruning",
-    "opencode-websearch-cited"
-  ]
+  "plugin": ["opencode-vibeguard", "opencode-dynamic-context-pruning", "opencode-websearch-cited"],
 }
 ```
 

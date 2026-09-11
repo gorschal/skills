@@ -64,14 +64,14 @@ EXPLAIN (ANALYZE, BUFFERS) <query>;
 
 Красные флаги:
 
-| В плане | Причина | Лечение |
-|---|---|---|
-| `Seq Scan` на большой таблице + узкий фильтр | нет индекса | индекс по фильтру |
-| estimate `rows` ≫ actual | устаревшая статистика | `ANALYZE tbl` |
-| `Sort Method: external merge Disk` | сортировка не влезла | `work_mem`/индекс под `ORDER BY` |
-| `Nested Loop` с большим внешним набором | плохой join-план | индекс по join-колонке |
-| `Rows Removed by Filter` огромно | не тот индекс | составной/partial индекс |
-| высокие `Buffers: read` при повторе | нет в кеше/bloat | `shared_buffers`, vacuum |
+| В плане                                      | Причина               | Лечение                          |
+| -------------------------------------------- | --------------------- | -------------------------------- |
+| `Seq Scan` на большой таблице + узкий фильтр | нет индекса           | индекс по фильтру                |
+| estimate `rows` ≫ actual                     | устаревшая статистика | `ANALYZE tbl`                    |
+| `Sort Method: external merge Disk`           | сортировка не влезла  | `work_mem`/индекс под `ORDER BY` |
+| `Nested Loop` с большим внешним набором      | плохой join-план      | индекс по join-колонке           |
+| `Rows Removed by Filter` огромно             | не тот индекс         | составной/partial индекс         |
+| высокие `Buffers: read` при повторе          | нет в кеше/bloat      | `shared_buffers`, vacuum         |
 
 Подробно: [references/diagnostics.md](references/diagnostics.md).
 
@@ -184,29 +184,29 @@ key; старые партиции — `DETACH`, не массовый `DELETE`.
 
 ## Уровни риска изменений
 
-| Действие | Риск |
-|---|---|
-| `EXPLAIN`, `pg_stat_*` | безопасно всегда |
+| Действие                               | Риск                         |
+| -------------------------------------- | ---------------------------- |
+| `EXPLAIN`, `pg_stat_*`                 | безопасно всегда             |
 | `CREATE INDEX CONCURRENTLY`, `ANALYZE` | безопасно, но I/O — не в пик |
-| `postgresql.conf`, pgbouncer | рестарт/перезагрузка — окно |
-| `VACUUM FULL`, failover, schema change | окно + план отката |
+| `postgresql.conf`, pgbouncer           | рестарт/перезагрузка — окно  |
+| `VACUUM FULL`, failover, schema change | окно + план отката           |
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| Индексы/настройки без замера | измерение → изменение → замер |
-| `SELECT *` в проде | нужные колонки |
-| `CREATE INDEX` на живой таблице | `CONCURRENTLY` |
-| Функция на индексируемой колонке | диапазонный предикат |
-| `LIKE '%term%'` без индекса | `pg_trgm`/FTS |
-| Большой `OFFSET` | keyset-пагинация |
-| `json` вместо `jsonb` | `jsonb` + GIN |
-| `VACUUM FULL` в рабочие часы | окно/`pg_repack` |
-| Отключение autovacuum | оставить включённым |
-| Много `max_connections` | пулинг (pgbouncer) |
-| Несколько изменений сразу | по одному, с замером |
-| Хранить большие BLOB в БД | объектное хранилище |
+| ❌ Запрещено                     | ✅ Правильно                  |
+| -------------------------------- | ----------------------------- |
+| Индексы/настройки без замера     | измерение → изменение → замер |
+| `SELECT *` в проде               | нужные колонки                |
+| `CREATE INDEX` на живой таблице  | `CONCURRENTLY`                |
+| Функция на индексируемой колонке | диапазонный предикат          |
+| `LIKE '%term%'` без индекса      | `pg_trgm`/FTS                 |
+| Большой `OFFSET`                 | keyset-пагинация              |
+| `json` вместо `jsonb`            | `jsonb` + GIN                 |
+| `VACUUM FULL` в рабочие часы     | окно/`pg_repack`              |
+| Отключение autovacuum            | оставить включённым           |
+| Много `max_connections`          | пулинг (pgbouncer)            |
+| Несколько изменений сразу        | по одному, с замером          |
+| Хранить большие BLOB в БД        | объектное хранилище           |
 
 ## Чек-лист
 
@@ -224,16 +224,16 @@ key; старые партиции — `DETACH`, не массовый `DELETE`.
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Диагностика, EXPLAIN | [references/diagnostics.md](references/diagnostics.md) | Поиск медленных запросов, чтение плана |
-| Индексы | [references/indexes.md](references/indexes.md) | Проектирование индексов |
-| Запросы | [references/queries.md](references/queries.md) | Переписывание запросов, пагинация |
-| Конфиг и maintenance | [references/tuning-maintenance.md](references/tuning-maintenance.md) | Память, пулинг, VACUUM, bloat |
-| JSONB | [references/jsonb.md](references/jsonb.md) | JSONB-операторы, GIN, generated-колонки |
-| Партиционирование | [references/partitioning.md](references/partitioning.md) | Большие/растущие таблицы, архивация |
-| Репликация и бэкапы | [references/replication-backups.md](references/replication-backups.md) | HA, логическая репликация, PITR |
-| Расширения | [references/extensions.md](references/extensions.md) | pg_trgm, pgcrypto, PostGIS |
+| Тема                 | Reference                                                              | Загружать когда                         |
+| -------------------- | ---------------------------------------------------------------------- | --------------------------------------- |
+| Диагностика, EXPLAIN | [references/diagnostics.md](references/diagnostics.md)                 | Поиск медленных запросов, чтение плана  |
+| Индексы              | [references/indexes.md](references/indexes.md)                         | Проектирование индексов                 |
+| Запросы              | [references/queries.md](references/queries.md)                         | Переписывание запросов, пагинация       |
+| Конфиг и maintenance | [references/tuning-maintenance.md](references/tuning-maintenance.md)   | Память, пулинг, VACUUM, bloat           |
+| JSONB                | [references/jsonb.md](references/jsonb.md)                             | JSONB-операторы, GIN, generated-колонки |
+| Партиционирование    | [references/partitioning.md](references/partitioning.md)               | Большие/растущие таблицы, архивация     |
+| Репликация и бэкапы  | [references/replication-backups.md](references/replication-backups.md) | HA, логическая репликация, PITR         |
+| Расширения           | [references/extensions.md](references/extensions.md)                   | pg_trgm, pgcrypto, PostGIS              |
 
 ## Связанные навыки
 

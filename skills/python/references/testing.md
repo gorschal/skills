@@ -15,12 +15,12 @@ unit-тесты берут только логику вне BDD и критич�
 
 Подробности — в навыке `python-testing`:
 
-| Тема | Reference |
-|---|---|
-| Структура, фикстуры, parametrize, покрытие | `python-testing/references/pytest.md` |
-| Mock/AsyncMock/patch, стратегия моков | `python-testing/references/mocking.md` |
-| pytest-asyncio, async-фикстуры | `python-testing/references/async.md` |
-| Антипаттерны, флаки, качество | `python-testing/references/quality.md` |
+| Тема                                       | Reference                              |
+| ------------------------------------------ | -------------------------------------- |
+| Структура, фикстуры, parametrize, покрытие | `python-testing/references/pytest.md`  |
+| Mock/AsyncMock/patch, стратегия моков      | `python-testing/references/mocking.md` |
+| pytest-asyncio, async-фикстуры             | `python-testing/references/async.md`   |
+| Антипаттерны, флаки, качество              | `python-testing/references/quality.md` |
 
 Фреймворк-специфика: `django/references/testing.md`,
 `fastapi/references/testing.md`, `faststream/references/testing.md`,

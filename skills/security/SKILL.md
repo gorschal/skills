@@ -47,18 +47,18 @@ metadata:
 
 ## OWASP Top 10 (Python)
 
-| # | Уязвимость | Профилактика |
-|---|---|---|
-| A01 | Broken Access Control | проверка владельца/роли, deny by default |
-| A02 | Cryptographic Failures | современные алгоритмы, TLS, секреты из env |
-| A03 | Injection | параметризованный SQL, без `eval`/shell |
-| A04 | Insecure Design | threat model, ограничения, rate limiting |
-| A05 | Security Misconfiguration | `DEBUG=False`, headers, CORS |
-| A06 | Vulnerable Components | `pip-audit`/`safety`, обновления |
-| A07 | Auth Failures | хеширование, lockout, короткие сессии |
-| A08 | Data Integrity | JSON/Pydantic, без `pickle` |
-| A09 | Logging Failures | логировать security-события |
-| A10 | SSRF | allowlist URL, запрет внутренних адресов |
+| #   | Уязвимость                | Профилактика                               |
+| --- | ------------------------- | ------------------------------------------ |
+| A01 | Broken Access Control     | проверка владельца/роли, deny by default   |
+| A02 | Cryptographic Failures    | современные алгоритмы, TLS, секреты из env |
+| A03 | Injection                 | параметризованный SQL, без `eval`/shell    |
+| A04 | Insecure Design           | threat model, ограничения, rate limiting   |
+| A05 | Security Misconfiguration | `DEBUG=False`, headers, CORS               |
+| A06 | Vulnerable Components     | `pip-audit`/`safety`, обновления           |
+| A07 | Auth Failures             | хеширование, lockout, короткие сессии      |
+| A08 | Data Integrity            | JSON/Pydantic, без `pickle`                |
+| A09 | Logging Failures          | логировать security-события                |
+| A10 | SSRF                      | allowlist URL, запрет внутренних адресов   |
 
 Подробно: [references/owasp.md](references/owasp.md).
 
@@ -151,20 +151,20 @@ remediation, references (CWE/OWASP).
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| `md5`/`sha1`/plaintext для паролей | `argon2`/`bcrypt` |
-| f-строка в SQL | параметризация/ORM |
-| `eval`/`exec`/`pickle` на вводе | JSON/Pydantic |
-| `shell=True` с вводом | список аргументов |
-| `|safe`/`mark_safe` на вводе | автоэкранирование |
-| Хардкод секретов | env/secret manager |
-| Секреты/PII в логах | маскирование |
-| Стектрейс в ответе | общий handler |
-| Нет проверки владельца (IDOR) | авторизация на объекте |
-| `DEBUG=True`/`ALLOWED_HOSTS=*` в проде | продовые настройки |
-| `requests.get(user_url)` без проверки (SSRF) | allowlist |
-| `@csrf_exempt` без причины | CSRF-защита |
+| ❌ Запрещено                                 | ✅ Правильно               |
+| -------------------------------------------- | -------------------------- |
+| `md5`/`sha1`/plaintext для паролей           | `argon2`/`bcrypt`          |
+| f-строка в SQL                               | параметризация/ORM         |
+| `eval`/`exec`/`pickle` на вводе              | JSON/Pydantic              |
+| `shell=True` с вводом                        | список аргументов          |
+| `                                            | safe`/`mark_safe` на вводе | автоэкранирование |
+| Хардкод секретов                             | env/secret manager         |
+| Секреты/PII в логах                          | маскирование               |
+| Стектрейс в ответе                           | общий handler              |
+| Нет проверки владельца (IDOR)                | авторизация на объекте     |
+| `DEBUG=True`/`ALLOWED_HOSTS=*` в проде       | продовые настройки         |
+| `requests.get(user_url)` без проверки (SSRF) | allowlist                  |
+| `@csrf_exempt` без причины                   | CSRF-защита                |
 
 ## Чек-лист
 
@@ -182,13 +182,13 @@ remediation, references (CWE/OWASP).
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| OWASP Top 10 | [references/owasp.md](references/owasp.md) | Профилактика уязвимостей |
-| Аутентификация/авторизация | [references/auth.md](references/auth.md) | Пароли, JWT, сессии, права |
-| Ввод/вывод и инъекции | [references/input-output.md](references/input-output.md) | SQL, XSS, SSRF, десериализация |
-| Секреты и крипто | [references/secrets-crypto.md](references/secrets-crypto.md) | Секреты, TLS, сканирование |
-| Security review | [references/review.md](references/review.md) | Аудит, severity, отчёт |
+| Тема                       | Reference                                                    | Загружать когда                |
+| -------------------------- | ------------------------------------------------------------ | ------------------------------ |
+| OWASP Top 10               | [references/owasp.md](references/owasp.md)                   | Профилактика уязвимостей       |
+| Аутентификация/авторизация | [references/auth.md](references/auth.md)                     | Пароли, JWT, сессии, права     |
+| Ввод/вывод и инъекции      | [references/input-output.md](references/input-output.md)     | SQL, XSS, SSRF, десериализация |
+| Секреты и крипто           | [references/secrets-crypto.md](references/secrets-crypto.md) | Секреты, TLS, сканирование     |
+| Security review            | [references/review.md](references/review.md)                 | Аудит, severity, отчёт         |
 
 ## Связанные навыки
 

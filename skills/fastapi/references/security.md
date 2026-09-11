@@ -110,16 +110,16 @@ app = FastAPI(
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `hashlib.md5(password)` | `argon2`/`bcrypt` |
-| Хардкод JWT-секрета | `SecretStr` из env |
-| `jwt.decode` без `algorithms` | Явный список алгоритмов |
-| `allow_origins=["*"]` + credentials | Явный список origin |
-| Docs открыты в проде | `docs_url=None` |
-| `==` для сравнения ключей | `secrets.compare_digest` |
-| Пароль/токен в логах | Маскирование, `exclude=True` |
-| Стектрейс в ответе | Общий handler + лог |
+| ❌                                  | ✅                           |
+| ----------------------------------- | ---------------------------- |
+| `hashlib.md5(password)`             | `argon2`/`bcrypt`            |
+| Хардкод JWT-секрета                 | `SecretStr` из env           |
+| `jwt.decode` без `algorithms`       | Явный список алгоритмов      |
+| `allow_origins=["*"]` + credentials | Явный список origin          |
+| Docs открыты в проде                | `docs_url=None`              |
+| `==` для сравнения ключей           | `secrets.compare_digest`     |
+| Пароль/токен в логах                | Маскирование, `exclude=True` |
+| Стектрейс в ответе                  | Общий handler + лог          |
 
 ## Чек-лист
 

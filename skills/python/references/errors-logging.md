@@ -47,12 +47,12 @@ async def get_user(user_id: int):
 
 ## Ловить — только когда нужно
 
-| Ситуация | Пример |
-|---|---|
-| Повторить | `tenacity.retry` для транзиентных сбоев |
-| Трансформировать | обернуть ошибку стороннего SDK в доменную |
-| Очистить ресурсы | `finally` / context manager |
-| Добавить контекст | `raise DomainError(...) from original` |
+| Ситуация          | Пример                                    |
+| ----------------- | ----------------------------------------- |
+| Повторить         | `tenacity.retry` для транзиентных сбоев   |
+| Трансформировать  | обернуть ошибку стороннего SDK в доменную |
+| Очистить ресурсы  | `finally` / context manager               |
+| Добавить контекст | `raise DomainError(...) from original`    |
 
 Во всех остальных случаях — пробрасывать.
 
@@ -131,12 +131,12 @@ logger = structlog.get_logger(__name__)
 
 ### Правила событий
 
-| ✅ Правильно | ❌ Запрещено |
-|---|---|
-| `logger.info("user_created", user_id=id)` | `print(f"User {id} created")` |
-| `logger.warning("cache_miss", key=k)` | `logger.info("User Created")` |
-| `logger.exception("payment_failed")` в `except` | `logger.info(f"...")` |
-| `snake_case`, прошедшее время | пробелы, заглавные |
+| ✅ Правильно                                    | ❌ Запрещено                  |
+| ----------------------------------------------- | ----------------------------- |
+| `logger.info("user_created", user_id=id)`       | `print(f"User {id} created")` |
+| `logger.warning("cache_miss", key=k)`           | `logger.info("User Created")` |
+| `logger.exception("payment_failed")` в `except` | `logger.info(f"...")`         |
+| `snake_case`, прошедшее время                   | пробелы, заглавные            |
 
 - Параметры — отдельными `key=value`, не в строку.
 - `logger.exception` — только внутри `except` (добавляет traceback).
@@ -163,15 +163,15 @@ class LoggingMiddleware(BaseHTTPMiddleware):
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `except Exception: pass` | конкретное исключение + обработка |
-| `except:` | `except SpecificError as e:` |
-| `raise NewError()` без `from` | `raise NewError() from e` |
-| `HTTPException` в сервисе | доменное исключение |
-| Стектрейс в ответе клиенту | общий handler + лог |
-| f-строки/`print` | `logger.info("event", key=value)` |
-| `logger.info(f"...")` | параметры отдельно |
+| ❌                            | ✅                                |
+| ----------------------------- | --------------------------------- |
+| `except Exception: pass`      | конкретное исключение + обработка |
+| `except:`                     | `except SpecificError as e:`      |
+| `raise NewError()` без `from` | `raise NewError() from e`         |
+| `HTTPException` в сервисе     | доменное исключение               |
+| Стектрейс в ответе клиенту    | общий handler + лог               |
+| f-строки/`print`              | `logger.info("event", key=value)` |
+| `logger.info(f"...")`         | параметры отдельно                |
 
 ## Чек-лист
 

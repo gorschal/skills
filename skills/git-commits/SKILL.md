@@ -53,6 +53,7 @@ git log --oneline -10        # стиль сообщений, принятый �
 ### 2. Группировка
 
 По убыванию приоритета:
+
 1. **Фича/модуль** — изменения, которые вместе имеют смысл и вместе ломаются.
 2. **Тип изменения** — docs, feat, refactor, fix, test, config.
 3. **Жёсткая зависимость** — обязательно вместе.
@@ -148,11 +149,11 @@ PR после прохождения CI и ревью.
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Процедура планирования | [references/planning.md](references/planning.md) | Группировка, порядок, шаблон плана |
-| Ветвление | [references/branching.md](references/branching.md) | Именование веток, `main`, PR |
-| Формат сообщений | [references/conventional-commits.md](references/conventional-commits.md) | Типы, scope, примеры |
+| Тема                   | Reference                                                                | Загружать когда                    |
+| ---------------------- | ------------------------------------------------------------------------ | ---------------------------------- |
+| Процедура планирования | [references/planning.md](references/planning.md)                         | Группировка, порядок, шаблон плана |
+| Ветвление              | [references/branching.md](references/branching.md)                       | Именование веток, `main`, PR       |
+| Формат сообщений       | [references/conventional-commits.md](references/conventional-commits.md) | Типы, scope, примеры               |
 
 ## Связанные навыки
 

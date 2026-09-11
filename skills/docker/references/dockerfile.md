@@ -5,11 +5,11 @@ BuildKit: первая строка — `# syntax=docker/dockerfile:1`. База
 
 ## Стадии
 
-| Стадия | Назначение | Зависимости |
-|---|---|---|
-| `develop` | локальная разработка, полная сборка | `libpq-dev gcc git` + dev-зависимости |
-| `prerelease` | без dev-зависимостей, `collectstatic` | `libpq-dev gcc git` |
-| `production` | минимальный рантайм | только `libpq5` |
+| Стадия       | Назначение                            | Зависимости                           |
+| ------------ | ------------------------------------- | ------------------------------------- |
+| `develop`    | локальная разработка, полная сборка   | `libpq-dev gcc git` + dev-зависимости |
+| `prerelease` | без dev-зависимостей, `collectstatic` | `libpq-dev gcc git`                   |
+| `production` | минимальный рантайм                   | только `libpq5`                       |
 
 ```dockerfile
 # syntax=docker/dockerfile:1
@@ -90,6 +90,7 @@ EXPOSE 8000
 ## uv
 
 Ставится копированием из `ghcr.io/astral-sh/uv:latest` (без pip). Синхронизация:
+
 - develop: `uv sync --no-install-project` (код копируется позже).
 - prerelease: `uv sync --frozen --no-dev`.
 - `UV_LINK_MODE=copy`, `UV_COMPILE_BYTECODE=1`, `UV_PYTHON_DOWNLOADS=0`.
@@ -121,16 +122,16 @@ docker-compose*
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `FROM python:latest` | `python:3.12-slim-bookworm` |
-| root в рантайме | `appuser` (UID/GID хоста) |
-| build-tools в production | только runtime (`libpq5`) |
-| секреты в `ENV` | runtime env/`.env` |
-| `COPY . .` до `uv sync` | сначала `pyproject.toml`/`uv.lock` |
-| нет кэш-маунтов | BuildKit cache для apt/uv |
-| `ARG`/`ENV` объявлены только в первой стадии | в каждой стадии, где нужны |
-| один образ на dev/prod | стадии `develop`/`prerelease`/`production` |
+| ❌                                           | ✅                                         |
+| -------------------------------------------- | ------------------------------------------ |
+| `FROM python:latest`                         | `python:3.12-slim-bookworm`                |
+| root в рантайме                              | `appuser` (UID/GID хоста)                  |
+| build-tools в production                     | только runtime (`libpq5`)                  |
+| секреты в `ENV`                              | runtime env/`.env`                         |
+| `COPY . .` до `uv sync`                      | сначала `pyproject.toml`/`uv.lock`         |
+| нет кэш-маунтов                              | BuildKit cache для apt/uv                  |
+| `ARG`/`ENV` объявлены только в первой стадии | в каждой стадии, где нужны                 |
+| один образ на dev/prod                       | стадии `develop`/`prerelease`/`production` |
 
 ## Чек-лист
 

@@ -66,11 +66,11 @@ async def test_concurrent_fetch(monkeypatch) -> None:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `MagicMock` для async | `AsyncMock` |
-| `time.sleep` в async-тесте | фейки/детерминизм |
-| Реальные таймеры/гонки | моки/события |
+| ❌                         | ✅                             |
+| -------------------------- | ------------------------------ |
+| `MagicMock` для async      | `AsyncMock`                    |
+| `time.sleep` в async-тесте | фейки/детерминизм              |
+| Реальные таймеры/гонки     | моки/события                   |
 | `asyncio.run` в sync-тесте | async-тест/`asyncio_mode=auto` |
 
 ## Чек-лист

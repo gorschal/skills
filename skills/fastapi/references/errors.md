@@ -147,30 +147,30 @@ class RequestContextMiddleware(BaseHTTPMiddleware):
 
 ## Обработка в слоях
 
-| Слой | Действие |
-|---|---|
-| Service | Выбрасывает доменные исключения |
-| Router | Пробрасывает (без `try/except` бизнес-ошибок) |
-| Exception handler | Маппит исключение в problem+json |
-| Middleware | Добавляет контекст (`request_id`, timing) |
+| Слой              | Действие                                      |
+| ----------------- | --------------------------------------------- |
+| Service           | Выбрасывает доменные исключения               |
+| Router            | Пробрасывает (без `try/except` бизнес-ошибок) |
+| Exception handler | Маппит исключение в problem+json              |
+| Middleware        | Добавляет контекст (`request_id`, timing)     |
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `HTTPException` в сервисе | Доменное исключение |
-| `try/except` бизнес-ошибок в роутере | Пробросить выше |
-| Нет handler для `Exception` | Обязательный общий handler |
-| `200` с телом ошибки | Корректный статус + problem+json |
-| Стектрейс/`exc.body` в ответе | Безопасное сообщение + лог |
-| Свой формат ошибки в каждом роуте | Единый `ProblemDetail` |
-| `application/json` для ошибок | `application/problem+json` |
+| ❌                                   | ✅                               |
+| ------------------------------------ | -------------------------------- |
+| `HTTPException` в сервисе            | Доменное исключение              |
+| `try/except` бизнес-ошибок в роутере | Пробросить выше                  |
+| Нет handler для `Exception`          | Обязательный общий handler       |
+| `200` с телом ошибки                 | Корректный статус + problem+json |
+| Стектрейс/`exc.body` в ответе        | Безопасное сообщение + лог       |
+| Свой формат ошибки в каждом роуте    | Единый `ProblemDetail`           |
+| `application/json` для ошибок        | `application/problem+json`       |
 
 ## Чек-лист
 
 - [ ] Сервис выбрасывает доменные исключения, не `HTTPException`.
 - [ ] Зарегистрированы handlers: `DomainError`, `RequestValidationError`,
-  `StarletteHTTPException`, `Exception`.
+      `StarletteHTTPException`, `Exception`.
 - [ ] Единый формат RFC 7807 (`application/problem+json`) с `code`/`request_id`.
 - [ ] Стектрейс и `exc.body` не уходят клиенту.
 - [ ] Все коды ошибок задокументированы в OpenAPI.

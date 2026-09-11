@@ -45,16 +45,16 @@ FastStream 0.7.x для event-driven сервисов на NATS: тонкие ha
 7. **Критичные обработчики идемпотентны** (уникальный ключ/проверка).
 8. **DI через `Depends`**; ручное создание сервисов запрещено.
 9. **Тесты:** BDD — основное покрытие; unit — логика вне BDD; `TestNatsBroker` —
-  для точечных проверок handler'ов.
+   для точечных проверок handler'ов.
 
 ## Архитектура (3 слоя)
 
-| Слой | Файл | Разрешено |
-|---|---|---|
-| Handler | `*handler.py` / `*router.py` | подписка, `Depends()`, один вызов сервиса |
-| Service | `*service.py` | бизнес-логика, идемпотентность, транзакции, доменные исключения |
-| Repository | `*repository.py` | только доступ к данным, без `commit`/`rollback` |
-| Schemas | `*schemas.py` | Pydantic-модели сообщений |
+| Слой       | Файл                         | Разрешено                                                       |
+| ---------- | ---------------------------- | --------------------------------------------------------------- |
+| Handler    | `*handler.py` / `*router.py` | подписка, `Depends()`, один вызов сервиса                       |
+| Service    | `*service.py`                | бизнес-логика, идемпотентность, транзакции, доменные исключения |
+| Repository | `*repository.py`             | только доступ к данным, без `commit`/`rollback`                 |
+| Schemas    | `*schemas.py`                | Pydantic-модели сообщений                                       |
 
 ```python
 @broker.subscriber("payments.process", queue="payments-workers")
@@ -134,13 +134,13 @@ FastStream управляет подтверждениями через `AckPoli
 async def handler(msg: PaymentProcessMessage) -> None: ...
 ```
 
-| Политика | On error |
-|---|---|
-| `ACK_FIRST` | подтверждает сразу (риск потери) |
-| `ACK` | подтверждает после обработки, даже при ошибке |
-| `REJECT_ON_ERROR` | отклоняет сообщение (без повтора) |
-| `NACK_ON_ERROR` | nack → redelivery (повтор) |
-| `MANUAL` | ручной `msg.ack()`/`msg.nack()`/`msg.reject()` |
+| Политика          | On error                                       |
+| ----------------- | ---------------------------------------------- |
+| `ACK_FIRST`       | подтверждает сразу (риск потери)               |
+| `ACK`             | подтверждает после обработки, даже при ошибке  |
+| `REJECT_ON_ERROR` | отклоняет сообщение (без повтора)              |
+| `NACK_ON_ERROR`   | nack → redelivery (повтор)                     |
+| `MANUAL`          | ручной `msg.ack()`/`msg.nack()`/`msg.reject()` |
 
 - Разрешение: subscriber > broker > дефолт брокера (NATS: `REJECT_ON_ERROR`).
 - **Retry/DLQ — не в FastStream**, а через `NACK_ON_ERROR`/JetStream redelivery
@@ -189,18 +189,18 @@ uv run pytest -v
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| Бизнес-логика в handler | Вызов service |
-| SQL/доступ к БД в handler | Repository |
-| Ручное создание сервиса | `Depends(get_..._service)` |
-| `commit()` в repository | Транзакция в сервисе |
-| Хардкод subject'ов в service | Subject только в handler/config |
-| Отсутствие идемпотентности | Проверка + уникальный ключ |
-| Дефолтная ack-политика «на удачу» | Явный `AckPolicy` |
-| Retry-логика в сервисе | `NACK_ON_ERROR`/JetStream redelivery |
-| `print` / f-строки в логах | `logger.info("event", key=value)` |
-| Синхронные драйверы/`requests` | async-аналоги |
+| ❌ Запрещено                      | ✅ Правильно                         |
+| --------------------------------- | ------------------------------------ |
+| Бизнес-логика в handler           | Вызов service                        |
+| SQL/доступ к БД в handler         | Repository                           |
+| Ручное создание сервиса           | `Depends(get_..._service)`           |
+| `commit()` в repository           | Транзакция в сервисе                 |
+| Хардкод subject'ов в service      | Subject только в handler/config      |
+| Отсутствие идемпотентности        | Проверка + уникальный ключ           |
+| Дефолтная ack-политика «на удачу» | Явный `AckPolicy`                    |
+| Retry-логика в сервисе            | `NACK_ON_ERROR`/JetStream redelivery |
+| `print` / f-строки в логах        | `logger.info("event", key=value)`    |
+| Синхронные драйверы/`requests`    | async-аналоги                        |
 
 ## Чек-лист code review
 
@@ -219,14 +219,14 @@ uv run pytest -v
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Архитектура, слои, DI | [references/architecture.md](references/architecture.md) | Проектирование handler'ов/сервисов |
-| NATS и FastStream | [references/nats.md](references/nats.md) | Subjects, queue groups, JetStream, RPC |
-| Сообщения (Pydantic) | [references/messages-pydantic.md](references/messages-pydantic.md) | Схемы сообщений, версионирование |
-| Ошибки, ack/nack, идемпотентность | [references/errors-ack.md](references/errors-ack.md) | AckPolicy, redelivery, DLQ, повторы |
+| Тема                                 | Reference                                                          | Загружать когда                          |
+| ------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------- |
+| Архитектура, слои, DI                | [references/architecture.md](references/architecture.md)           | Проектирование handler'ов/сервисов       |
+| NATS и FastStream                    | [references/nats.md](references/nats.md)                           | Subjects, queue groups, JetStream, RPC   |
+| Сообщения (Pydantic)                 | [references/messages-pydantic.md](references/messages-pydantic.md) | Схемы сообщений, версионирование         |
+| Ошибки, ack/nack, идемпотентность    | [references/errors-ack.md](references/errors-ack.md)               | AckPolicy, redelivery, DLQ, повторы      |
 | Жизненный цикл, контекст, middleware | [references/lifecycle-context.md](references/lifecycle-context.md) | lifespan, Context, Logger, observability |
-| Тестирование | [references/testing.md](references/testing.md) | Unit, BDD, TestNatsBroker |
+| Тестирование                         | [references/testing.md](references/testing.md)                     | Unit, BDD, TestNatsBroker                |
 
 ## Связанные навыки
 

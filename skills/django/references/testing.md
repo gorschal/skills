@@ -6,10 +6,10 @@
 
 ## Границы
 
-| Уровень | Что проверяет |
-|---|---|
+| Уровень            | Что проверяет                                     |
+| ------------------ | ------------------------------------------------- |
 | BDD (`pytest-bdd`) | сквозные сценарии всей логики (основное покрытие) |
-| Unit (pytest) | логика вне BDD + критичные ветки |
+| Unit (pytest)      | логика вне BDD + критичные ветки                  |
 
 ## Что тестируем unit-тестами
 
@@ -106,14 +106,14 @@ def test_is_valid_amount(amount: int, expected: bool) -> None:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Дублировать BDD-сценарий unit-тестом | unit только для пробелов BDD |
-| `django.test.TestCase`/`APITestCase` | pytest-функции + `Mock` |
-| `self.client.get/post` | BDD-сценарий |
-| Фикстуры БД / `objects.create()` | `Mock` репозитория |
-| Проверка `__str__`/полей модели | не тестировать |
-| `assert mock.called` | `assert_called_once_with(...)` |
+| ❌                                   | ✅                             |
+| ------------------------------------ | ------------------------------ |
+| Дублировать BDD-сценарий unit-тестом | unit только для пробелов BDD   |
+| `django.test.TestCase`/`APITestCase` | pytest-функции + `Mock`        |
+| `self.client.get/post`               | BDD-сценарий                   |
+| Фикстуры БД / `objects.create()`     | `Mock` репозитория             |
+| Проверка `__str__`/полей модели      | не тестировать                 |
+| `assert mock.called`                 | `assert_called_once_with(...)` |
 
 ## Чек-лист
 

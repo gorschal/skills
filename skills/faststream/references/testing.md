@@ -6,11 +6,11 @@
 
 ## Границы
 
-| Уровень | Что проверяет |
-|---|---|
-| BDD | сквозной сценарий: публикация сообщения → эффект |
-| Unit (pytest) | бизнес-логика сервисов вне BDD, идемпотентность |
-| `TestNatsBroker` | handler без реального брокера (in-memory) |
+| Уровень          | Что проверяет                                    |
+| ---------------- | ------------------------------------------------ |
+| BDD              | сквозной сценарий: публикация сообщения → эффект |
+| Unit (pytest)    | бизнес-логика сервисов вне BDD, идемпотентность  |
+| `TestNatsBroker` | handler без реального брокера (in-memory)        |
 
 ## Что тестируем unit-тестами
 
@@ -70,13 +70,13 @@ async def test_handler_processes_message() -> None:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Дублировать BDD-сценарий unit-тестом | unit только для пробелов BDD |
-| Тестировать тонкий handler | BDD/`TestNatsBroker` |
-| Реальный NATS в unit | `AsyncMock`/`TestNatsBroker` |
-| Проверка Pydantic-валидации | не тестировать |
-| `assert mock.called` | `assert_awaited_once_with(...)` |
+| ❌                                   | ✅                              |
+| ------------------------------------ | ------------------------------- |
+| Дублировать BDD-сценарий unit-тестом | unit только для пробелов BDD    |
+| Тестировать тонкий handler           | BDD/`TestNatsBroker`            |
+| Реальный NATS в unit                 | `AsyncMock`/`TestNatsBroker`    |
+| Проверка Pydantic-валидации          | не тестировать                  |
+| `assert mock.called`                 | `assert_awaited_once_with(...)` |
 
 ## Чек-лист
 

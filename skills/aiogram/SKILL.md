@@ -64,14 +64,14 @@ dp.include_router(start.router)
 dp.include_router(checkout.router)
 ```
 
-| Компонент | Ответственность |
-|---|---|
-| Routers | хендлеры по домену; порядок включения = порядок проверки |
-| Filters | декларативный отбор апдейтов (`Command`, `F`, `StateFilter`) |
+| Компонент   | Ответственность                                                   |
+| ----------- | ----------------------------------------------------------------- |
+| Routers     | хендлеры по домену; порядок включения = порядок проверки          |
+| Filters     | декларативный отбор апдейтов (`Command`, `F`, `StateFilter`)      |
 | Middlewares | outer — throttling/бан/логи; inner — контекст хендлера (БД, i18n) |
-| Services | бизнес-логика без aiogram-типов |
-| Keyboards | сборка клавиатур |
-| States | `StatesGroup` |
+| Services    | бизнес-логика без aiogram-типов                                   |
+| Keyboards   | сборка клавиатур                                                  |
+| States      | `StatesGroup`                                                     |
 
 - Более специфичные фильтры — выше.
 - Зависимости — через `workflow_data`/middleware (`data["db"]`), не глобалы.
@@ -111,13 +111,13 @@ async def got_address(message, state: FSMContext) -> None:
 
 ### Ошибки Telegram (`aiogram.exceptions`)
 
-| Исключение | Действие |
-|---|---|
-| `TelegramRetryAfter` (429) | подождать `.retry_after`, снизить темп |
-| `TelegramForbiddenError` | пометить получателя неактивным, не падать |
-| `TelegramBadRequest` | логировать, чинить причину (часто не ретраить) |
-| `TelegramNetworkError` | ретрай с backoff |
-| `TelegramAPIError` | глобальный error handler |
+| Исключение                 | Действие                                       |
+| -------------------------- | ---------------------------------------------- |
+| `TelegramRetryAfter` (429) | подождать `.retry_after`, снизить темп         |
+| `TelegramForbiddenError`   | пометить получателя неактивным, не падать      |
+| `TelegramBadRequest`       | логировать, чинить причину (часто не ретраить) |
+| `TelegramNetworkError`     | ретрай с backoff                               |
+| `TelegramAPIError`         | глобальный error handler                       |
 
 - **Рассылки**: троттлить (~≤25–30 msg/s, ~1/s в чат), ловить ошибки на каждого
   получателя, выносить в фоновую очередь с идемпотентностью.
@@ -168,11 +168,11 @@ async def test_start_replies(dp, bot) -> None:
 
 ## Деплой
 
-| | Polling | Webhook |
-|---|---|---|
-| Инфраструктура | минимум | публичный HTTPS, TLS, nginx, secret |
-| Масштаб | один процесс | можно масштабировать приёмник |
-| Когда | по умолчанию, MVP | высокая нагрузка |
+|                | Polling           | Webhook                             |
+| -------------- | ----------------- | ----------------------------------- |
+| Инфраструктура | минимум           | публичный HTTPS, TLS, nginx, secret |
+| Масштаб        | один процесс      | можно масштабировать приёмник       |
+| Когда          | по умолчанию, MVP | высокая нагрузка                    |
 
 - Polling: systemd-юнит, `Restart=always`, `TimeoutStopSec` для graceful shutdown.
 - Webhook: aiohttp + `SimpleRequestHandler(secret_token=...)` за nginx/TLS;
@@ -182,20 +182,20 @@ async def test_start_replies(dp, bot) -> None:
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| Всё в одном файле на `@dp.message` | Роутеры по доменам |
-| Бизнес-логика в хендлере | Сервис |
-| `if/elif` по `message.text` | Фильтры (`F`, `Command`) |
-| `time.sleep`/`requests`/sync-драйверы | async-аналоги |
-| `MemoryStorage` в проде | `RedisStorage` |
-| Две polling-копии | один инстанс |
-| Рассылка без throttle и обработки ошибок | throttle + per-user обработка |
-| `except: pass` | глобальный error handler + лог |
-| Токен в коде/репозитории | env/`EnvironmentFile` |
-| Забыть `allowed_updates` | явно указать типы |
-| Отсутствие идемпотентности | дедуп по `update_id`/бизнес-ключу |
-| `Bot(token, parse_mode=...)` | `DefaultBotProperties` |
+| ❌ Запрещено                             | ✅ Правильно                      |
+| ---------------------------------------- | --------------------------------- |
+| Всё в одном файле на `@dp.message`       | Роутеры по доменам                |
+| Бизнес-логика в хендлере                 | Сервис                            |
+| `if/elif` по `message.text`              | Фильтры (`F`, `Command`)          |
+| `time.sleep`/`requests`/sync-драйверы    | async-аналоги                     |
+| `MemoryStorage` в проде                  | `RedisStorage`                    |
+| Две polling-копии                        | один инстанс                      |
+| Рассылка без throttle и обработки ошибок | throttle + per-user обработка     |
+| `except: pass`                           | глобальный error handler + лог    |
+| Токен в коде/репозитории                 | env/`EnvironmentFile`             |
+| Забыть `allowed_updates`                 | явно указать типы                 |
+| Отсутствие идемпотентности               | дедуп по `update_id`/бизнес-ключу |
+| `Bot(token, parse_mode=...)`             | `DefaultBotProperties`            |
 
 ## Чек-лист code review
 
@@ -215,13 +215,13 @@ async def test_start_replies(dp, bot) -> None:
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Архитектура, роутеры, middlewares, DI | [references/architecture.md](references/architecture.md) | Структура бота, фильтры, зависимости |
-| Надёжность, ошибки, flood-control | [references/reliability.md](references/reliability.md) | 409/429, рассылки, shutdown, идемпотентность |
-| FSM и storage | [references/fsm-storage.md](references/fsm-storage.md) | Состояния, Redis/Memory, выходы |
-| Деплой | [references/deploy.md](references/deploy.md) | systemd, webhook+nginx, секреты, healthcheck |
-| Тестирование | [references/testing.md](references/testing.md) | feed_update, FSM, моки Bot |
+| Тема                                  | Reference                                                | Загружать когда                              |
+| ------------------------------------- | -------------------------------------------------------- | -------------------------------------------- |
+| Архитектура, роутеры, middlewares, DI | [references/architecture.md](references/architecture.md) | Структура бота, фильтры, зависимости         |
+| Надёжность, ошибки, flood-control     | [references/reliability.md](references/reliability.md)   | 409/429, рассылки, shutdown, идемпотентность |
+| FSM и storage                         | [references/fsm-storage.md](references/fsm-storage.md)   | Состояния, Redis/Memory, выходы              |
+| Деплой                                | [references/deploy.md](references/deploy.md)             | systemd, webhook+nginx, секреты, healthcheck |
+| Тестирование                          | [references/testing.md](references/testing.md)           | feed_update, FSM, моки Bot                   |
 
 ## Связанные навыки
 

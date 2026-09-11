@@ -6,12 +6,11 @@
 ## Anchor общего сервиса
 
 ```yaml
-x-app:
-  &app
+x-app: &app
   build:
     context: .
     dockerfile: ./Dockerfile
-    target: develop            # dev; для prod — production
+    target: develop # dev; для prod — production
   tty: true
   restart: unless-stopped
   volumes:
@@ -69,20 +68,20 @@ volumes:
 ## Несколько сервисов (монорепозиторий)
 
 ```yaml
-  fastapi:
-    <<: *app
-    command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8080
-    ports: ["8080:8080"]
+fastapi:
+  <<: *app
+  command: uv run uvicorn app.main:app --host 0.0.0.0 --port 8080
+  ports: ["8080:8080"]
 
-  payment_listener:
-    <<: *app
-    command: uv run python manage.py run_payment_listener
-    depends_on:
-      postgresql: { condition: service_healthy }
+payment_listener:
+  <<: *app
+  command: uv run python manage.py run_payment_listener
+  depends_on:
+    postgresql: { condition: service_healthy }
 
-  metrics_exporter:
-    <<: *app
-    command: uv run python manage.py export_metrics
+metrics_exporter:
+  <<: *app
+  command: uv run python manage.py export_metrics
 ```
 
 - Web, воркеры, listener, exporter — отдельные сервисы с общим anchor/образом.
@@ -105,14 +104,14 @@ docker compose -f docker-compose.yaml -f docker-compose.prod.yaml up -d
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| дублирование конфига в каждом сервисе | anchor `x-app` |
-| `image: postgres` без версии | `postgres:18-alpine` |
-| секреты в `environment:` | `env_file`/secrets |
-| `depends_on` без condition | `condition: service_healthy` |
-| bind-mount `.` в прод | код в образе |
-| один сервис на всё | web/worker/listener раздельно |
+| ❌                                    | ✅                            |
+| ------------------------------------- | ----------------------------- |
+| дублирование конфига в каждом сервисе | anchor `x-app`                |
+| `image: postgres` без версии          | `postgres:18-alpine`          |
+| секреты в `environment:`              | `env_file`/secrets            |
+| `depends_on` без condition            | `condition: service_healthy`  |
+| bind-mount `.` в прод                 | код в образе                  |
+| один сервис на всё                    | web/worker/listener раздельно |
 
 ## Чек-лист
 

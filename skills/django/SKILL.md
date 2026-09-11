@@ -45,13 +45,13 @@ selectors, формы, транзакции, производительност�
 
 ## Архитектура (5 слоёв)
 
-| Слой | Файл | Ответственность |
-|---|---|---|
-| Views | `views.py` | HTTP, валидация формой, вызов сервиса, ответ |
-| Services | `services.py` | бизнес-логика, транзакции, оркестрация. Без `request` |
-| Selectors | `selectors.py` | чтение: сложные/переиспользуемые запросы. Без мутаций |
-| Models | `models.py` | данные, простые свойства, `__str__`. Без бизнес-логики |
-| Forms | `forms.py` | только валидация данных |
+| Слой      | Файл           | Ответственность                                        |
+| --------- | -------------- | ------------------------------------------------------ |
+| Views     | `views.py`     | HTTP, валидация формой, вызов сервиса, ответ           |
+| Services  | `services.py`  | бизнес-логика, транзакции, оркестрация. Без `request`  |
+| Selectors | `selectors.py` | чтение: сложные/переиспользуемые запросы. Без мутаций  |
+| Models    | `models.py`    | данные, простые свойства, `__str__`. Без бизнес-логики |
+| Forms     | `forms.py`     | только валидация данных                                |
 
 ### Сервис
 
@@ -94,14 +94,14 @@ Selector — если запрос сложный (JOIN/агрегация) **и
 
 ## ORM и производительность
 
-| ✅ | ❌ |
-|---|---|
-| `select_related("customer")` | `.all()` + доступ в цикле |
+| ✅                                    | ❌                                  |
+| ------------------------------------- | ----------------------------------- |
+| `select_related("customer")`          | `.all()` + доступ в цикле           |
 | `.prefetch_related("items__product")` | `order.customer.name` в цикле (N+1) |
-| `only()`/`defer()` | тянуть все поля |
-| `annotate`/`aggregate`, `F()`, `Q()` | агрегация в Python |
-| `bulk_create`/`bulk_update` | `save()` в цикле |
-| `Paginator` | `.all()` без пагинации |
+| `only()`/`defer()`                    | тянуть все поля                     |
+| `annotate`/`aggregate`, `F()`, `Q()`  | агрегация в Python                  |
+| `bulk_create`/`bulk_update`           | `save()` в цикле                    |
+| `Paginator`                           | `.all()` без пагинации              |
 
 Подробно: [references/orm.md](references/orm.md).
 
@@ -190,19 +190,19 @@ docker compose exec django uv run ruff check . && docker compose exec django uv 
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| Бизнес-логика во view/модели | сервис |
-| `fallback` на репозиторий | явная передача |
-| `user.save()` в сервисе | `self.user_repo.create_user(...)` |
-| `send_email.enqueue()` внутри транзакции | `transaction.on_commit(...)` |
-| `Order.objects.all()` в цикле | `select_related`/`prefetch_related` |
-| `.all()` без пагинации | `Paginator` |
-| `datetime.now()` | `timezone.now()` |
-| `print(f"...")` | `logger.info("event", key=value)` |
-| `fields = "__all__"` | явный список |
-| `@csrf_exempt` без причины | CSRF-защита |
-| `unittest.TestCase` в unit | pytest-функции |
+| ❌                                       | ✅                                  |
+| ---------------------------------------- | ----------------------------------- |
+| Бизнес-логика во view/модели             | сервис                              |
+| `fallback` на репозиторий                | явная передача                      |
+| `user.save()` в сервисе                  | `self.user_repo.create_user(...)`   |
+| `send_email.enqueue()` внутри транзакции | `transaction.on_commit(...)`        |
+| `Order.objects.all()` в цикле            | `select_related`/`prefetch_related` |
+| `.all()` без пагинации                   | `Paginator`                         |
+| `datetime.now()`                         | `timezone.now()`                    |
+| `print(f"...")`                          | `logger.info("event", key=value)`   |
+| `fields = "__all__"`                     | явный список                        |
+| `@csrf_exempt` без причины               | CSRF-защита                         |
+| `unittest.TestCase` в unit               | pytest-функции                      |
 
 ## Чек-лист code review
 
@@ -220,14 +220,14 @@ docker compose exec django uv run ruff check . && docker compose exec django uv 
 
 ## Справочники
 
-| Тема | Reference | Когда |
-|---|---|---|
-| Архитектура, слои, DI, forms, views | [references/architecture.md](references/architecture.md) | Проектирование |
-| ORM и производительность | [references/orm.md](references/orm.md) | Модели, N+1, пагинация |
-| Транзакции, ошибки, логи | [references/transactions-errors.md](references/transactions-errors.md) | atomic/on_commit, исключения |
-| Миграции | [references/migrations.md](references/migrations.md) | makemigrations, RunPython |
-| Безопасность | [references/security.md](references/security.md) | settings, CSRF/XSS/SQLi, IDOR |
-| Тестирование | [references/testing.md](references/testing.md) | unit сервисов, моки, BDD |
+| Тема                                | Reference                                                              | Когда                         |
+| ----------------------------------- | ---------------------------------------------------------------------- | ----------------------------- |
+| Архитектура, слои, DI, forms, views | [references/architecture.md](references/architecture.md)               | Проектирование                |
+| ORM и производительность            | [references/orm.md](references/orm.md)                                 | Модели, N+1, пагинация        |
+| Транзакции, ошибки, логи            | [references/transactions-errors.md](references/transactions-errors.md) | atomic/on_commit, исключения  |
+| Миграции                            | [references/migrations.md](references/migrations.md)                   | makemigrations, RunPython     |
+| Безопасность                        | [references/security.md](references/security.md)                       | settings, CSRF/XSS/SQLi, IDOR |
+| Тестирование                        | [references/testing.md](references/testing.md)                         | unit сервисов, моки, BDD      |
 
 ## Связанные навыки
 

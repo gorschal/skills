@@ -44,12 +44,12 @@ metadata:
 
 ## Уровни риска
 
-| Уровень | Что |
-|---|---|
+| Уровень      | Что                                                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **CRITICAL** | гарантированный простой/потеря данных: table rewrite, долгий `ACCESS EXCLUSIVE` на большой таблице, `DROP COLUMN` с данными, backfill всей таблицы одной транзакцией |
-| **HIGH** | блокировка записи или поломка старого кода: индекс без `CONCURRENTLY`, `RENAME`, новый `NOT NULL`/`UNIQUE`/FK без двухфазного приёма |
-| **MEDIUM** | нет `lock_timeout`, нет обратной операции (`RunPython` без reverse), схема и данные в одной миграции |
-| **LOW** | стиль, именование |
+| **HIGH**     | блокировка записи или поломка старого кода: индекс без `CONCURRENTLY`, `RENAME`, новый `NOT NULL`/`UNIQUE`/FK без двухфазного приёма                                 |
+| **MEDIUM**   | нет `lock_timeout`, нет обратной операции (`RunPython` без reverse), схема и данные в одной миграции                                                                 |
+| **LOW**      | стиль, именование                                                                                                                                                    |
 
 Не раздувать риск: на пустой/маленькой таблице `CREATE INDEX` без `CONCURRENTLY` —
 LOW, а не HIGH. Уровень привязывать к объёму и модели деплоя.
@@ -57,7 +57,7 @@ LOW, а не HIGH. Уровень привязывать к объёму и мо
 ## Быстрый чек-лист
 
 - [ ] `ADD COLUMN` с volatile/вычисляемым default или новый `NOT NULL` на непустой
-  таблице → rewrite.
+      таблице → rewrite.
 - [ ] `CREATE INDEX` без `CONCURRENTLY` → блокирует запись.
 - [ ] `ALTER COLUMN TYPE` → почти всегда rewrite + `ACCESS EXCLUSIVE`.
 - [ ] FK/`UNIQUE`/`NOT NULL` одним шагом → `NOT VALID` → `VALIDATE`.
@@ -98,19 +98,19 @@ python manage.py makemigrations --check --dry-run  # CI
 
 ## Postgres-операции
 
-| Операция | Риск | Безопасно |
-|---|---|---|
-| `ADD COLUMN` без default | LOW | да |
-| `ADD COLUMN` с константным default | LOW (PG11+) | да |
-| `ADD COLUMN` с volatile default (`now()`, `uuid()`) | CRITICAL | nullable → backfill → default отдельно |
-| `ADD COLUMN ... NOT NULL` на непустой | CRITICAL | nullable → backfill → `NOT NULL` |
-| `ALTER COLUMN TYPE` | CRITICAL | новая колонка → backfill → переключение |
-| `CREATE INDEX` | HIGH | `CONCURRENTLY` (вне транзакции) |
-| `ADD FOREIGN KEY` | HIGH | `NOT VALID` → `VALIDATE` |
-| `ADD UNIQUE` | HIGH | `CREATE UNIQUE INDEX CONCURRENTLY` → `USING INDEX` |
-| `RENAME` | HIGH | expand/contract |
-| `DROP COLUMN`/`TABLE` | HIGH/CRITICAL | только в contract-фазе |
-| Backfill всей таблицы | CRITICAL | батчами по PK с commit между |
+| Операция                                            | Риск          | Безопасно                                          |
+| --------------------------------------------------- | ------------- | -------------------------------------------------- |
+| `ADD COLUMN` без default                            | LOW           | да                                                 |
+| `ADD COLUMN` с константным default                  | LOW (PG11+)   | да                                                 |
+| `ADD COLUMN` с volatile default (`now()`, `uuid()`) | CRITICAL      | nullable → backfill → default отдельно             |
+| `ADD COLUMN ... NOT NULL` на непустой               | CRITICAL      | nullable → backfill → `NOT NULL`                   |
+| `ALTER COLUMN TYPE`                                 | CRITICAL      | новая колонка → backfill → переключение            |
+| `CREATE INDEX`                                      | HIGH          | `CONCURRENTLY` (вне транзакции)                    |
+| `ADD FOREIGN KEY`                                   | HIGH          | `NOT VALID` → `VALIDATE`                           |
+| `ADD UNIQUE`                                        | HIGH          | `CREATE UNIQUE INDEX CONCURRENTLY` → `USING INDEX` |
+| `RENAME`                                            | HIGH          | expand/contract                                    |
+| `DROP COLUMN`/`TABLE`                               | HIGH/CRITICAL | только в contract-фазе                             |
+| Backfill всей таблицы                               | CRITICAL      | батчами по PK с commit между                       |
 
 - DDL берёт `ACCESS EXCLUSIVE` (блокирует всё, включая чтение) и/или переписывает
   таблицу. Очередь локов: даже мгновенный лок ждёт текущие запросы и блокирует
@@ -133,18 +133,18 @@ python manage.py makemigrations --check --dry-run  # CI
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
-|---|---|
-| `CREATE INDEX` на живой таблице | `CONCURRENTLY` + `atomic = False` |
-| `NOT NULL`/FK/`UNIQUE` одним шагом | `NOT VALID` → `VALIDATE` |
-| Backfill всей таблицы в транзакции | батчи по PK, вне транзакции |
-| `RENAME` при zero-downtime | expand/contract |
-| `DROP COLUMN` до отказа кода | contract-фаза после выката |
-| DDL без `lock_timeout` | `SET lock_timeout` |
-| `RunPython` без reverse | `reverse_code`/`noop` |
-| Схема и данные в одной миграции | раздельные миграции |
+| ❌ Запрещено                        | ✅ Правильно                      |
+| ----------------------------------- | --------------------------------- |
+| `CREATE INDEX` на живой таблице     | `CONCURRENTLY` + `atomic = False` |
+| `NOT NULL`/FK/`UNIQUE` одним шагом  | `NOT VALID` → `VALIDATE`          |
+| Backfill всей таблицы в транзакции  | батчи по PK, вне транзакции       |
+| `RENAME` при zero-downtime          | expand/contract                   |
+| `DROP COLUMN` до отказа кода        | contract-фаза после выката        |
+| DDL без `lock_timeout`              | `SET lock_timeout`                |
+| `RunPython` без reverse             | `reverse_code`/`noop`             |
+| Схема и данные в одной миграции     | раздельные миграции               |
 | Редактирование применённой миграции | новая миграция/`squashmigrations` |
-| Прямой импорт модели в `RunPython` | `apps.get_model` |
+| Прямой импорт модели в `RunPython`  | `apps.get_model`                  |
 
 ## Чек-лист перед применением
 
@@ -159,12 +159,12 @@ python manage.py makemigrations --check --dry-run  # CI
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
-|---|---|---|
-| Postgres-операции и блокировки | [references/operations.md](references/operations.md) | Таблица «операция → риск → альтернатива» |
-| Django-специфика | [references/django.md](references/django.md) | `atomic=False`, `AddIndexConcurrently`, `RunPython` |
-| Модели деплоя | [references/deploy-models.md](references/deploy-models.md) | downtime vs zero-downtime, expand/contract |
-| Отчёт аудита | [references/report.md](references/report.md) | Формат вывода и правки |
+| Тема                           | Reference                                                  | Загружать когда                                     |
+| ------------------------------ | ---------------------------------------------------------- | --------------------------------------------------- |
+| Postgres-операции и блокировки | [references/operations.md](references/operations.md)       | Таблица «операция → риск → альтернатива»            |
+| Django-специфика               | [references/django.md](references/django.md)               | `atomic=False`, `AddIndexConcurrently`, `RunPython` |
+| Модели деплоя                  | [references/deploy-models.md](references/deploy-models.md) | downtime vs zero-downtime, expand/contract          |
+| Отчёт аудита                   | [references/report.md](references/report.md)               | Формат вывода и правки                              |
 
 ## Связанные навыки
 

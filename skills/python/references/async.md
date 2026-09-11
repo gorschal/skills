@@ -4,14 +4,14 @@ async/await для I/O-bound операций. Блокирующий код в 
 
 ## Запрещено → замена
 
-| ❌ Запрещено | ✅ Замена |
-|---|---|
-| `requests.get()` | `httpx.AsyncClient` |
-| `time.sleep()` | `await asyncio.sleep()` |
-| `psycopg2`, `sqlite3` | `asyncpg` + SQLAlchemy async |
-| `open()` | `aiofiles.open()` |
-| синхронные SDK | `run_in_threadpool` или async-версия |
-| `print()` | `logger.info(...)` |
+| ❌ Запрещено          | ✅ Замена                            |
+| --------------------- | ------------------------------------ |
+| `requests.get()`      | `httpx.AsyncClient`                  |
+| `time.sleep()`        | `await asyncio.sleep()`              |
+| `psycopg2`, `sqlite3` | `asyncpg` + SQLAlchemy async         |
+| `open()`              | `aiofiles.open()`                    |
+| синхронные SDK        | `run_in_threadpool` или async-версия |
+| `print()`             | `logger.info(...)`                   |
 
 ## async def vs def
 
@@ -119,14 +119,14 @@ class TaskRegistry:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `time.sleep`, `requests`, `open` в async | async-аналоги |
-| Блокирующий парсинг большого файла в event loop | `run_in_threadpool` |
-| `create_task` без хранения ссылки | реестр задач |
-| Отсутствие таймаутов | `asyncio.timeout` |
-| `asyncio.get_event_loop()` в корутине | `asyncio.get_running_loop()` |
-| Смешение sync и async БД | один async-драйвер |
+| ❌                                              | ✅                           |
+| ----------------------------------------------- | ---------------------------- |
+| `time.sleep`, `requests`, `open` в async        | async-аналоги                |
+| Блокирующий парсинг большого файла в event loop | `run_in_threadpool`          |
+| `create_task` без хранения ссылки               | реестр задач                 |
+| Отсутствие таймаутов                            | `asyncio.timeout`            |
+| `asyncio.get_event_loop()` в корутине           | `asyncio.get_running_loop()` |
+| Смешение sync и async БД                        | один async-драйвер           |
 
 ## Чек-лист
 

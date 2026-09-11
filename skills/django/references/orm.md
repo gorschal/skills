@@ -29,11 +29,11 @@ orders = Order.objects.prefetch_related(
 )
 ```
 
-| Метод | Когда |
-|---|---|
-| `select_related` | FK, OneToOne (JOIN) |
-| `prefetch_related` | M2M, reverse FK, `items__product` |
-| `Prefetch` | когда нужно фильтровать/сортировать связанные |
+| Метод              | Когда                                         |
+| ------------------ | --------------------------------------------- |
+| `select_related`   | FK, OneToOne (JOIN)                           |
+| `prefetch_related` | M2M, reverse FK, `items__product`             |
+| `Prefetch`         | когда нужно фильтровать/сортировать связанные |
 
 Правило: **никогда не обращаться к связанному полю в цикле без предзагрузки.**
 
@@ -129,15 +129,15 @@ datetime.now()                # ❌ без tz
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Доступ к related в цикле | `select_related`/`prefetch_related` |
-| `.all()` без пагинации | `Paginator` |
-| `save()` в цикле | `bulk_update` |
-| Агрегация в Python (`sum(...)`) | `aggregate`/`annotate` |
-| `F()` заменён чтением-записью | `F()` для операций на БД |
-| `datetime.now()` | `timezone.now()` |
-| N+1 в шаблоне | предзагрузка в selector/view |
+| ❌                              | ✅                                  |
+| ------------------------------- | ----------------------------------- |
+| Доступ к related в цикле        | `select_related`/`prefetch_related` |
+| `.all()` без пагинации          | `Paginator`                         |
+| `save()` в цикле                | `bulk_update`                       |
+| Агрегация в Python (`sum(...)`) | `aggregate`/`annotate`              |
+| `F()` заменён чтением-записью   | `F()` для операций на БД            |
+| `datetime.now()`                | `timezone.now()`                    |
+| N+1 в шаблоне                   | предзагрузка в selector/view        |
 
 ## Чек-лист
 

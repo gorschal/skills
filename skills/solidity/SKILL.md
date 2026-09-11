@@ -60,20 +60,20 @@ optimizer_runs = 200
 fuzz = { runs = 256 }
 ```
 
-| Действие | Команда |
-|---|---|
-| Сборка | `forge build` |
-| Тесты | `forge test` |
-| Тесты + газ | `forge test --gas-report` |
-| Один тест | `forge test --match-contract XTest --match-test test_X -vvvv` |
-| Покрытие | `forge coverage` |
-| Fuzz (10k) | `forge test --fuzz-runs 10000` |
-| Газ-снапшот | `forge snapshot` |
-| Формат | `forge fmt` |
-| Storage layout | `forge inspect <Contract> storage-layout` |
-| Локальная нода | `anvil` (или `anvil --fork-url <RPC>`) |
-| Деплой (dry-run) | `forge script scripts/DeployPolygonStandardPayment.s.sol --rpc-url <RPC> --sender <ADDR>` |
-| Деплой + broadcast | `forge script ... --broadcast --private-key <PK>` |
+| Действие           | Команда                                                                                   |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| Сборка             | `forge build`                                                                             |
+| Тесты              | `forge test`                                                                              |
+| Тесты + газ        | `forge test --gas-report`                                                                 |
+| Один тест          | `forge test --match-contract XTest --match-test test_X -vvvv`                             |
+| Покрытие           | `forge coverage`                                                                          |
+| Fuzz (10k)         | `forge test --fuzz-runs 10000`                                                            |
+| Газ-снапшот        | `forge snapshot`                                                                          |
+| Формат             | `forge fmt`                                                                               |
+| Storage layout     | `forge inspect <Contract> storage-layout`                                                 |
+| Локальная нода     | `anvil` (или `anvil --fork-url <RPC>`)                                                    |
+| Деплой (dry-run)   | `forge script scripts/DeployPolygonStandardPayment.s.sol --rpc-url <RPC> --sender <ADDR>` |
+| Деплой + broadcast | `forge script ... --broadcast --private-key <PK>`                                         |
 
 Тесты: файл `Contract.t.sol` в `tests/`, контракт `ContractTest is Test`,
 `assertEq`/`assertTrue`, `vm.label(...)`, fuzz + `bound`/`vm.assume`, инварианты
@@ -97,13 +97,13 @@ contract SecureToken is ERC20, ReentrancyGuard { /* ... */ }
 
 ## Безопасность (критично)
 
-| Правило | Требование |
-|---|---|
-| Access control | модификатор на каждой state-changing функции |
-| CEI | проверки → эффекты → взаимодействия |
-| Reentrancy | `nonReentrant` + CEI |
-| События | каждое изменение состояния emit'ит |
-| Ошибки | `require`/`revert` с понятным сообщением или custom errors |
+| Правило        | Требование                                                 |
+| -------------- | ---------------------------------------------------------- |
+| Access control | модификатор на каждой state-changing функции               |
+| CEI            | проверки → эффекты → взаимодействия                        |
+| Reentrancy     | `nonReentrant` + CEI                                       |
+| События        | каждое изменение состояния emit'ит                         |
+| Ошибки         | `require`/`revert` с понятным сообщением или custom errors |
 
 ```solidity
 function withdraw(uint256 amount) external nonReentrant {
@@ -156,17 +156,17 @@ function withdraw(uint256 amount) external nonReentrant {
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| `tx.origin` | `msg.sender` |
-| `.transfer()`/`.send()` | `call{value:}("")` + проверка |
-| `selfdestruct` | `pause`/`emergencyWithdraw` |
-| spot-цена без защиты | Chainlink/TWAP + stale check |
-| цикл > 50 элементов | Pull-over-Push |
-| `block.timestamp` как рандом | Chainlink VRF |
-| повторный `initialize` | модификатор `initializer` |
-| изменение storage layout | только добавление в конец |
-| `delegatecall` на произвольный адрес | allowlist |
+| ❌                                   | ✅                            |
+| ------------------------------------ | ----------------------------- |
+| `tx.origin`                          | `msg.sender`                  |
+| `.transfer()`/`.send()`              | `call{value:}("")` + проверка |
+| `selfdestruct`                       | `pause`/`emergencyWithdraw`   |
+| spot-цена без защиты                 | Chainlink/TWAP + stale check  |
+| цикл > 50 элементов                  | Pull-over-Push                |
+| `block.timestamp` как рандом         | Chainlink VRF                 |
+| повторный `initialize`               | модификатор `initializer`     |
+| изменение storage layout             | только добавление в конец     |
+| `delegatecall` на произвольный адрес | allowlist                     |
 
 ## Чек-лист перед деплоем
 
@@ -180,12 +180,12 @@ function withdraw(uint256 amount) external nonReentrant {
 
 ## Справочники
 
-| Тема | Reference | Когда |
-|---|---|---|
-| Foundry, тесты, команды | [references/foundry.md](references/foundry.md) | forge/cast/anvil, структура, тесты |
-| Безопасность | [references/security.md](references/security.md) | access control, CEI, оракулы, табу |
-| Газ и апгрейды | [references/gas-upgrade.md](references/gas-upgrade.md) | оптимизация, UUPS, storage layout |
-| Тесты и аудит | [references/testing-audit.md](references/testing-audit.md) | fuzz/invariant, slither, деплой |
+| Тема                    | Reference                                                  | Когда                              |
+| ----------------------- | ---------------------------------------------------------- | ---------------------------------- |
+| Foundry, тесты, команды | [references/foundry.md](references/foundry.md)             | forge/cast/anvil, структура, тесты |
+| Безопасность            | [references/security.md](references/security.md)           | access control, CEI, оракулы, табу |
+| Газ и апгрейды          | [references/gas-upgrade.md](references/gas-upgrade.md)     | оптимизация, UUPS, storage layout  |
+| Тесты и аудит           | [references/testing-audit.md](references/testing-audit.md) | fuzz/invariant, slither, деплой    |
 
 ## Связанные навыки
 

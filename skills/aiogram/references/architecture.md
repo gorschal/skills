@@ -122,14 +122,14 @@ bot/
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Всё в одном файле | Роутеры по доменам |
-| Логика в хендлере | Сервис |
-| `if/elif` по `text` | Фильтры |
-| Глобальные синглтоны | `workflow_data`/middleware |
-| Тяжёлый I/O в middleware | вынести из hot path |
-| `Bot(token, parse_mode=...)` | `DefaultBotProperties` |
+| ❌                           | ✅                         |
+| ---------------------------- | -------------------------- |
+| Всё в одном файле            | Роутеры по доменам         |
+| Логика в хендлере            | Сервис                     |
+| `if/elif` по `text`          | Фильтры                    |
+| Глобальные синглтоны         | `workflow_data`/middleware |
+| Тяжёлый I/O в middleware     | вынести из hot path        |
+| `Bot(token, parse_mode=...)` | `DefaultBotProperties`     |
 
 ## Чек-лист
 

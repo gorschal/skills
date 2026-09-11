@@ -96,15 +96,15 @@ operations = [
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `CREATE INDEX` без `CONCURRENTLY` | `AddIndexConcurrently` + `atomic=False` |
-| `RunPython` без reverse | `reverse_code`/`noop` |
-| Прямой импорт модели в `RunPython` | `apps.get_model` |
-| Backfill `.all()` в транзакции | батчи + `atomic=False` |
-| Схема и данные в одной миграции | раздельные |
-| Редактирование применённой миграции | новая/`squashmigrations` |
-| `RenameField` при zero-downtime | `SeparateDatabaseAndState` + expand/contract |
+| ❌                                  | ✅                                           |
+| ----------------------------------- | -------------------------------------------- |
+| `CREATE INDEX` без `CONCURRENTLY`   | `AddIndexConcurrently` + `atomic=False`      |
+| `RunPython` без reverse             | `reverse_code`/`noop`                        |
+| Прямой импорт модели в `RunPython`  | `apps.get_model`                             |
+| Backfill `.all()` в транзакции      | батчи + `atomic=False`                       |
+| Схема и данные в одной миграции     | раздельные                                   |
+| Редактирование применённой миграции | новая/`squashmigrations`                     |
+| `RenameField` при zero-downtime     | `SeparateDatabaseAndState` + expand/contract |
 
 ## Чек-лист
 

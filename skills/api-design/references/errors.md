@@ -66,16 +66,16 @@ async def api_error_handler(request: Request, exc: APIError) -> JSONResponse:
 
 ## Статус-коды
 
-| Условие | Статус | `code` |
-|---|---|---|
-| Неверная схема/формат/диапазон | `422` (FastAPI) или `400` | `VALIDATION_ERROR` |
-| Нет/невалидные credentials | `401` | `MISSING_TOKEN`/`INVALID_TOKEN`/`EXPIRED_TOKEN` |
-| Нет прав | `403` | `INSUFFICIENT_PERMISSIONS` |
-| Нет ресурса | `404` | `RESOURCE_NOT_FOUND` |
-| Дубликат/конфликт | `409` | `RESOURCE_ALREADY_EXISTS`/`CONFLICT` |
-| Rate limit | `429` + `Retry-After` | `RATE_LIMIT_EXCEEDED` |
-| Непредвиденное | `500` | `INTERNAL_SERVER_ERROR` |
-| Недоступно | `503` + `Retry-After` | `SERVICE_UNAVAILABLE` |
+| Условие                        | Статус                    | `code`                                          |
+| ------------------------------ | ------------------------- | ----------------------------------------------- |
+| Неверная схема/формат/диапазон | `422` (FastAPI) или `400` | `VALIDATION_ERROR`                              |
+| Нет/невалидные credentials     | `401`                     | `MISSING_TOKEN`/`INVALID_TOKEN`/`EXPIRED_TOKEN` |
+| Нет прав                       | `403`                     | `INSUFFICIENT_PERMISSIONS`                      |
+| Нет ресурса                    | `404`                     | `RESOURCE_NOT_FOUND`                            |
+| Дубликат/конфликт              | `409`                     | `RESOURCE_ALREADY_EXISTS`/`CONFLICT`            |
+| Rate limit                     | `429` + `Retry-After`     | `RATE_LIMIT_EXCEEDED`                           |
+| Непредвиденное                 | `500`                     | `INTERNAL_SERVER_ERROR`                         |
+| Недоступно                     | `503` + `Retry-After`     | `SERVICE_UNAVAILABLE`                           |
 
 ## Валидация (Pydantic v2)
 
@@ -132,14 +132,14 @@ class RequestIDMiddleware(BaseHTTPMiddleware):
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `200` с телом ошибки | корректный статус |
-| Разный формат ошибок | RFC 7807 |
-| Стектрейс/SQL в ответе | общее сообщение + лог |
-| Нет `request_id` | заголовок + тело |
-| Ошибки не задокументированы | все ответы в OpenAPI |
-| Раскрытие существования пользователя | общее сообщение |
+| ❌                                   | ✅                    |
+| ------------------------------------ | --------------------- |
+| `200` с телом ошибки                 | корректный статус     |
+| Разный формат ошибок                 | RFC 7807              |
+| Стектрейс/SQL в ответе               | общее сообщение + лог |
+| Нет `request_id`                     | заголовок + тело      |
+| Ошибки не задокументированы          | все ответы в OpenAPI  |
+| Раскрытие существования пользователя | общее сообщение       |
 
 ## Чек-лист
 

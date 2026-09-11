@@ -5,12 +5,12 @@ FastStream — тонкий клиент брокера: оркестрацию/
 
 ## Слои и границы
 
-| Слой | Знает про | Не знает про | Тестируется |
-|---|---|---|---|
-| Handler | сообщение, `Depends` | SQL, бизнес-логику | BDD/`TestNatsBroker` |
-| Service | домен, репозитории, транзакции | NATS, subject, headers | unit (моки) |
-| Repository | БД, SQLAlchemy | бизнес-правила, commit | через сервис/QA |
-| Schemas | форму сообщений | персистентность | Pydantic (не unit) |
+| Слой       | Знает про                      | Не знает про           | Тестируется          |
+| ---------- | ------------------------------ | ---------------------- | -------------------- |
+| Handler    | сообщение, `Depends`           | SQL, бизнес-логику     | BDD/`TestNatsBroker` |
+| Service    | домен, репозитории, транзакции | NATS, subject, headers | unit (моки)          |
+| Repository | БД, SQLAlchemy                 | бизнес-правила, commit | через сервис/QA      |
+| Schemas    | форму сообщений                | персистентность        | Pydantic (не unit)   |
 
 Правило: **один вызов сервиса из handler**; сервис оркестрирует репозитории.
 
@@ -100,14 +100,14 @@ def get_payment_service(
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Бизнес-логика в handler | Service |
-| SQL в handler | Repository |
-| `service = PaymentService(db)` | `Depends(...)` |
-| `commit()` в repository | Транзакция в сервисе |
-| Хардкод subject в service | handler/config |
-| Глобальные синглтоны | DI |
+| ❌                             | ✅                   |
+| ------------------------------ | -------------------- |
+| Бизнес-логика в handler        | Service              |
+| SQL в handler                  | Repository           |
+| `service = PaymentService(db)` | `Depends(...)`       |
+| `commit()` в repository        | Транзакция в сервисе |
+| Хардкод subject в service      | handler/config       |
+| Глобальные синглтоны           | DI                   |
 
 ## Чек-лист
 

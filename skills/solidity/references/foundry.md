@@ -49,21 +49,21 @@ quote_style = "double"
 
 ## Команды
 
-| Действие | Команда |
-|---|---|
-| Сборка | `forge build` |
-| Тесты | `forge test` |
-| Тесты + газ | `forge test --gas-report` |
-| Один тест | `forge test --match-contract XTest --match-test test_X -vvvv` |
-| Покрытие | `forge coverage` |
-| Fuzz (10k) | `forge test --fuzz-runs 10000` |
-| Газ-снапшот | `forge snapshot` |
-| Формат | `forge fmt` |
-| Storage layout | `forge inspect <Contract> storage-layout` |
-| Локальная нода | `anvil` |
-| Форк сети | `anvil --fork-url <RPC>` |
-| Деплой (dry-run) | `forge script scripts/DeployPolygonStandardPayment.s.sol --rpc-url <RPC> --sender <ADDR>` |
-| Деплой + broadcast | `forge script ... --broadcast --private-key <PK>` |
+| Действие           | Команда                                                                                   |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| Сборка             | `forge build`                                                                             |
+| Тесты              | `forge test`                                                                              |
+| Тесты + газ        | `forge test --gas-report`                                                                 |
+| Один тест          | `forge test --match-contract XTest --match-test test_X -vvvv`                             |
+| Покрытие           | `forge coverage`                                                                          |
+| Fuzz (10k)         | `forge test --fuzz-runs 10000`                                                            |
+| Газ-снапшот        | `forge snapshot`                                                                          |
+| Формат             | `forge fmt`                                                                               |
+| Storage layout     | `forge inspect <Contract> storage-layout`                                                 |
+| Локальная нода     | `anvil`                                                                                   |
+| Форк сети          | `anvil --fork-url <RPC>`                                                                  |
+| Деплой (dry-run)   | `forge script scripts/DeployPolygonStandardPayment.s.sol --rpc-url <RPC> --sender <ADDR>` |
+| Деплой + broadcast | `forge script ... --broadcast --private-key <PK>`                                         |
 
 `cast` — `cast call`, `cast send`, `cast decode-abi`, `cast wallet`.
 `chisel` — интерактивная проверка Solidity.

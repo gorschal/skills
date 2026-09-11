@@ -46,34 +46,34 @@ function withdraw(uint256 amount) external nonReentrant {
 
 ## Типичные уязвимости (SWC/OWASP)
 
-| Категория | Профилактика |
-|---|---|
-| Reentrancy (SWC-107) | CEI + `nonReentrant` |
-| Access control (SWC-105/106) | модификаторы, Multisig/Timelock |
-| Unchecked call (SWC-104) | проверять возврат `call`/`SafeERC20` |
-| tx.origin (SWC-115) | `msg.sender` |
-| Delegatecall (SWC-112) | allowlist, storage layout |
-| Randomness (SWC-120) | Chainlink VRF |
-| Front-running | commit-reveal, slippage limits |
-| DoS (SWC-113/128) | Pull-over-Push, без unbounded циклов |
-| Storage collision (proxy) | layout, слоты ERC-1967 |
-| Signature replay | nonce, chainId (EIP-712/191) |
-| Overflow | checked по умолчанию (0.8+); `unchecked` — осознанно |
+| Категория                    | Профилактика                                         |
+| ---------------------------- | ---------------------------------------------------- |
+| Reentrancy (SWC-107)         | CEI + `nonReentrant`                                 |
+| Access control (SWC-105/106) | модификаторы, Multisig/Timelock                      |
+| Unchecked call (SWC-104)     | проверять возврат `call`/`SafeERC20`                 |
+| tx.origin (SWC-115)          | `msg.sender`                                         |
+| Delegatecall (SWC-112)       | allowlist, storage layout                            |
+| Randomness (SWC-120)         | Chainlink VRF                                        |
+| Front-running                | commit-reveal, slippage limits                       |
+| DoS (SWC-113/128)            | Pull-over-Push, без unbounded циклов                 |
+| Storage collision (proxy)    | layout, слоты ERC-1967                               |
+| Signature replay             | nonce, chainId (EIP-712/191)                         |
+| Overflow                     | checked по умолчанию (0.8+); `unchecked` — осознанно |
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| `tx.origin` | `msg.sender` |
-| `.transfer()`/`.send()` | `call{value:}("")` + проверка |
-| `selfdestruct` | `pause`/`emergencyWithdraw` |
-| spot-цена без защиты | Chainlink/TWAP + stale check |
-| цикл > 50 элементов | Pull-over-Push |
-| `block.timestamp` как рандом | Chainlink VRF |
-| повторный `initialize` | модификатор `initializer` |
-| изменение storage layout | только добавление в конец |
-| приватные данные в storage/event | не хранить |
-| `delegatecall` на произвольный адрес | allowlist |
+| ❌                                   | ✅                            |
+| ------------------------------------ | ----------------------------- |
+| `tx.origin`                          | `msg.sender`                  |
+| `.transfer()`/`.send()`              | `call{value:}("")` + проверка |
+| `selfdestruct`                       | `pause`/`emergencyWithdraw`   |
+| spot-цена без защиты                 | Chainlink/TWAP + stale check  |
+| цикл > 50 элементов                  | Pull-over-Push                |
+| `block.timestamp` как рандом         | Chainlink VRF                 |
+| повторный `initialize`               | модификатор `initializer`     |
+| изменение storage layout             | только добавление в конец     |
+| приватные данные в storage/event     | не хранить                    |
+| `delegatecall` на произвольный адрес | allowlist                     |
 
 ## Чек-лист
 

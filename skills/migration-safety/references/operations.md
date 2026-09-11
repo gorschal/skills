@@ -10,22 +10,22 @@
 
 ## Таблица операций
 
-| Операция | Риск | Почему | Безопасно |
-|---|---|---|---|
-| `ADD COLUMN` без default | LOW | метаданные, мгновенно | да |
-| `ADD COLUMN` с **константным** default | LOW (PG11+) | default в каталоге, без rewrite | да на PG11+ |
-| `ADD COLUMN` с **volatile** default (`now()`, `uuid_generate_v4()`) | CRITICAL | rewrite под `ACCESS EXCLUSIVE` | nullable → backfill → default отдельно |
-| `ADD COLUMN ... NOT NULL` без default на непустой | CRITICAL | ошибка/rewrite | nullable → backfill → `NOT NULL` |
-| `ALTER COLUMN SET NOT NULL` | HIGH | полный скан под `ACCESS EXCLUSIVE` (PG≤11) | PG12+: `CHECK (col IS NOT NULL) NOT VALID` → `VALIDATE` → `SET NOT NULL` |
-| `CREATE INDEX` без `CONCURRENTLY` | HIGH | `SHARE` lock — блокирует запись на всё построение | `CREATE INDEX CONCURRENTLY` (вне транзакции) |
-| `ALTER COLUMN TYPE` | CRITICAL | почти всегда rewrite + `ACCESS EXCLUSIVE` | новая колонка → backfill → переключение |
-| `ADD FOREIGN KEY` | HIGH | `SHARE ROW EXCLUSIVE` + скан на валидацию | `NOT VALID` → `VALIDATE` |
-| `ADD UNIQUE` | HIGH | строит unique-индекс под локом | `CREATE UNIQUE INDEX CONCURRENTLY` → `USING INDEX` |
-| `ADD CHECK` | MEDIUM | скан на валидацию под локом | `NOT VALID` → `VALIDATE` |
-| `DROP COLUMN` | HIGH | быстро, но теряет данные и ломает старый код | только contract-фаза |
-| `RENAME COLUMN`/`TABLE` | HIGH | мгновенно ломает старый код | не для zero-downtime; expand/contract |
-| `DROP TABLE`/`TRUNCATE` | CRITICAL | потеря данных; `TRUNCATE` берёт `ACCESS EXCLUSIVE` | после подтверждения + бэкап |
-| Backfill всей таблицы | CRITICAL | длинные локи, WAL, лаг реплик | батчами по PK с commit |
+| Операция                                                            | Риск        | Почему                                             | Безопасно                                                                |
+| ------------------------------------------------------------------- | ----------- | -------------------------------------------------- | ------------------------------------------------------------------------ |
+| `ADD COLUMN` без default                                            | LOW         | метаданные, мгновенно                              | да                                                                       |
+| `ADD COLUMN` с **константным** default                              | LOW (PG11+) | default в каталоге, без rewrite                    | да на PG11+                                                              |
+| `ADD COLUMN` с **volatile** default (`now()`, `uuid_generate_v4()`) | CRITICAL    | rewrite под `ACCESS EXCLUSIVE`                     | nullable → backfill → default отдельно                                   |
+| `ADD COLUMN ... NOT NULL` без default на непустой                   | CRITICAL    | ошибка/rewrite                                     | nullable → backfill → `NOT NULL`                                         |
+| `ALTER COLUMN SET NOT NULL`                                         | HIGH        | полный скан под `ACCESS EXCLUSIVE` (PG≤11)         | PG12+: `CHECK (col IS NOT NULL) NOT VALID` → `VALIDATE` → `SET NOT NULL` |
+| `CREATE INDEX` без `CONCURRENTLY`                                   | HIGH        | `SHARE` lock — блокирует запись на всё построение  | `CREATE INDEX CONCURRENTLY` (вне транзакции)                             |
+| `ALTER COLUMN TYPE`                                                 | CRITICAL    | почти всегда rewrite + `ACCESS EXCLUSIVE`          | новая колонка → backfill → переключение                                  |
+| `ADD FOREIGN KEY`                                                   | HIGH        | `SHARE ROW EXCLUSIVE` + скан на валидацию          | `NOT VALID` → `VALIDATE`                                                 |
+| `ADD UNIQUE`                                                        | HIGH        | строит unique-индекс под локом                     | `CREATE UNIQUE INDEX CONCURRENTLY` → `USING INDEX`                       |
+| `ADD CHECK`                                                         | MEDIUM      | скан на валидацию под локом                        | `NOT VALID` → `VALIDATE`                                                 |
+| `DROP COLUMN`                                                       | HIGH        | быстро, но теряет данные и ломает старый код       | только contract-фаза                                                     |
+| `RENAME COLUMN`/`TABLE`                                             | HIGH        | мгновенно ломает старый код                        | не для zero-downtime; expand/contract                                    |
+| `DROP TABLE`/`TRUNCATE`                                             | CRITICAL    | потеря данных; `TRUNCATE` берёт `ACCESS EXCLUSIVE` | после подтверждения + бэкап                                              |
+| Backfill всей таблицы                                               | CRITICAL    | длинные локи, WAL, лаг реплик                      | батчами по PK с commit                                                   |
 
 ## CREATE INDEX CONCURRENTLY
 

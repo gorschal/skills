@@ -75,8 +75,7 @@ RUN --mount=type=cache,target=/home/appuser/.cache/uv,uid=1000,gid=1000 \
 Общий каркас сервиса — YAML-anchor `x-app` + `<<: *app`; всё докеризуется (dev и prod).
 
 ```yaml
-x-app:
-  &app
+x-app: &app
   build: { context: ., dockerfile: ./Dockerfile, target: develop }
   tty: true
   restart: unless-stopped
@@ -124,16 +123,16 @@ volumes:
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| `FROM image:latest` | пин версии |
-| `USER root` в рантайме | non-root |
-| Секреты в `ENV`/`COPY .env` | runtime env/secret |
-| Один слой с `COPY . .` до установки зависимостей | сначала манифесты |
-| Нет `.dockerignore` | исключать `.git`, `.env`, кэши |
-| `apt-get upgrade`/лишние пакеты | только необходимое |
-| Данные в слое контейнера | именованный volume |
-| Нет healthcheck | `HEALTHCHECK` |
+| ❌                                               | ✅                             |
+| ------------------------------------------------ | ------------------------------ |
+| `FROM image:latest`                              | пин версии                     |
+| `USER root` в рантайме                           | non-root                       |
+| Секреты в `ENV`/`COPY .env`                      | runtime env/secret             |
+| Один слой с `COPY . .` до установки зависимостей | сначала манифесты              |
+| Нет `.dockerignore`                              | исключать `.git`, `.env`, кэши |
+| `apt-get upgrade`/лишние пакеты                  | только необходимое             |
+| Данные в слое контейнера                         | именованный volume             |
+| Нет healthcheck                                  | `HEALTHCHECK`                  |
 
 ## Чек-лист
 
@@ -148,10 +147,10 @@ volumes:
 
 ## Справочники
 
-| Тема | Reference | Когда |
-|---|---|---|
-| Dockerfile | [references/dockerfile.md](references/dockerfile.md) | Multi-stage, кэш, non-root, размер |
-| docker-compose | [references/compose.md](references/compose.md) | Сервисы, volumes, env, health, watch |
+| Тема           | Reference                                            | Когда                                |
+| -------------- | ---------------------------------------------------- | ------------------------------------ |
+| Dockerfile     | [references/dockerfile.md](references/dockerfile.md) | Multi-stage, кэш, non-root, размер   |
+| docker-compose | [references/compose.md](references/compose.md)       | Сервисы, volumes, env, health, watch |
 
 ## Связанные навыки
 

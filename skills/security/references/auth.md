@@ -86,15 +86,15 @@ def get_document(self, doc_id: int, user_id: int) -> Document:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `md5(password)` | `argon2`/`bcrypt` |
-| Разное сообщение для «нет пользователя»/«неверный пароль» | общее сообщение |
-| Нет rate limiting | lockout/backoff |
-| `jwt.decode` без `algorithms` | явный allowlist |
-| Токен в localStorage | `HttpOnly` cookie |
-| Проверка прав только на клиенте | серверная проверка |
-| `==` для API-ключей | `compare_digest` |
+| ❌                                                        | ✅                 |
+| --------------------------------------------------------- | ------------------ |
+| `md5(password)`                                           | `argon2`/`bcrypt`  |
+| Разное сообщение для «нет пользователя»/«неверный пароль» | общее сообщение    |
+| Нет rate limiting                                         | lockout/backoff    |
+| `jwt.decode` без `algorithms`                             | явный allowlist    |
+| Токен в localStorage                                      | `HttpOnly` cookie  |
+| Проверка прав только на клиенте                           | серверная проверка |
+| `==` для API-ключей                                       | `compare_digest`   |
 
 ## Чек-лист
 

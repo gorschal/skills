@@ -47,12 +47,12 @@ read-only доступ к таблицам, которыми владеет Djan
 
 ## Архитектура (4 слоя)
 
-| Слой | Файл | Разрешено |
-|---|---|---|
-| Router | `*_router.py` | HTTP-параметры, `Depends()`, один вызов сервиса |
-| Service | `*_service.py` | бизнес-логика, транзакции, доменные исключения |
-| Repository | `*_repository.py` | только запросы к БД (SQLAlchemy), без commit |
-| Schemas | `*_schemas.py` | только Pydantic-модели |
+| Слой       | Файл              | Разрешено                                       |
+| ---------- | ----------------- | ----------------------------------------------- |
+| Router     | `*_router.py`     | HTTP-параметры, `Depends()`, один вызов сервиса |
+| Service    | `*_service.py`    | бизнес-логика, транзакции, доменные исключения  |
+| Repository | `*_repository.py` | только запросы к БД (SQLAlchemy), без commit    |
+| Schemas    | `*_schemas.py`    | только Pydantic-модели                          |
 
 Псевдо-шаблон (детали — в references):
 
@@ -112,13 +112,13 @@ class PaymentOut(BaseModel):
 
 ## Асинхронность
 
-| ❌ | ✅ |
-|---|---|
-| `requests.get()` | `httpx.AsyncClient` |
-| `time.sleep()` | `await asyncio.sleep()` |
+| ❌                   | ✅                           |
+| -------------------- | ---------------------------- |
+| `requests.get()`     | `httpx.AsyncClient`          |
+| `time.sleep()`       | `await asyncio.sleep()`      |
 | `psycopg2`/`sqlite3` | `asyncpg` + SQLAlchemy async |
-| `open()` | `aiofiles.open()` |
-| блокирующий SDK | `run_in_threadpool` |
+| `open()`             | `aiofiles.open()`            |
+| блокирующий SDK      | `run_in_threadpool`          |
 
 - `async def` — если есть `await`; иначе `def` (FastAPI уведёт в threadpool).
 - Таймауты на внешние вызовы; тяжёлое — в очередь/Django Tasks, не в `BackgroundTasks`.
@@ -182,20 +182,20 @@ docker compose exec fastapi uv run pytest -v
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| SQL/логика в роутере | repository/service |
-| `PaymentService(db)` в роутере | `Depends(...)` |
-| `HTTPException` в сервисе | доменное исключение + handler |
-| `commit()` в репозитории | транзакция в сервисе |
-| `create_all`/свои миграции | схема/миграции — Django |
-| ленивая загрузка в async | `selectinload`/`joinedload`, `lazy="raise"` |
-| `class Config`/`orm_mode`/`.dict()` | `ConfigDict`/`from_attributes`/`model_dump()` |
-| `requests`/`time.sleep`/sync-драйверы | `httpx`/`asyncio.sleep`/`asyncpg` |
-| `print()`/f-строки в логах | `logger.info("event", key=value)` |
-| `TestClient` в unit | `AsyncMock`; HTTP — BDD |
-| `os.getenv()` вне config | `pydantic-settings` |
-| стектрейс в ответе | общий handler + лог |
+| ❌                                    | ✅                                            |
+| ------------------------------------- | --------------------------------------------- |
+| SQL/логика в роутере                  | repository/service                            |
+| `PaymentService(db)` в роутере        | `Depends(...)`                                |
+| `HTTPException` в сервисе             | доменное исключение + handler                 |
+| `commit()` в репозитории              | транзакция в сервисе                          |
+| `create_all`/свои миграции            | схема/миграции — Django                       |
+| ленивая загрузка в async              | `selectinload`/`joinedload`, `lazy="raise"`   |
+| `class Config`/`orm_mode`/`.dict()`   | `ConfigDict`/`from_attributes`/`model_dump()` |
+| `requests`/`time.sleep`/sync-драйверы | `httpx`/`asyncio.sleep`/`asyncpg`             |
+| `print()`/f-строки в логах            | `logger.info("event", key=value)`             |
+| `TestClient` в unit                   | `AsyncMock`; HTTP — BDD                       |
+| `os.getenv()` вне config              | `pydantic-settings`                           |
+| стектрейс в ответе                    | общий handler + лог                           |
 
 ## Чек-лист code review
 
@@ -213,14 +213,14 @@ docker compose exec fastapi uv run pytest -v
 
 ## Справочники
 
-| Тема | Reference | Когда |
-|---|---|---|
-| Архитектура, слои, DI, lifespan | [references/architecture.md](references/architecture.md) | Проектирование |
-| Доступ к данным | [references/data-access.md](references/data-access.md) | Сессии, ORM/Core, read-only |
-| Pydantic v2 | [references/pydantic-v2.md](references/pydantic-v2.md) | Схемы, валидаторы |
-| Ошибки | [references/errors.md](references/errors.md) | RFC 7807, handlers |
-| Безопасность | [references/security.md](references/security.md) | JWT, CORS, docs, hashing |
-| Тестирование | [references/testing.md](references/testing.md) | unit, моки, BDD |
+| Тема                            | Reference                                                | Когда                       |
+| ------------------------------- | -------------------------------------------------------- | --------------------------- |
+| Архитектура, слои, DI, lifespan | [references/architecture.md](references/architecture.md) | Проектирование              |
+| Доступ к данным                 | [references/data-access.md](references/data-access.md)   | Сессии, ORM/Core, read-only |
+| Pydantic v2                     | [references/pydantic-v2.md](references/pydantic-v2.md)   | Схемы, валидаторы           |
+| Ошибки                          | [references/errors.md](references/errors.md)             | RFC 7807, handlers          |
+| Безопасность                    | [references/security.md](references/security.md)         | JWT, CORS, docs, hashing    |
+| Тестирование                    | [references/testing.md](references/testing.md)           | unit, моки, BDD             |
 
 ## Связанные навыки
 

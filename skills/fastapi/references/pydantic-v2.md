@@ -116,28 +116,28 @@ settings = Settings()
 
 ## Pydantic v1 → v2
 
-| v1 | v2 |
-|---|---|
-| `@validator` | `@field_validator` |
-| `@root_validator` | `@model_validator` |
-| `class Config` | `model_config = ConfigDict(...)` |
-| `orm_mode = True` | `from_attributes = True` |
-| `Optional[X]` | `X \| None` |
-| `.dict()` | `.model_dump()` |
-| `.parse_obj()` | `.model_validate()` |
-| `allow_mutation=False` | `frozen=True` |
+| v1                     | v2                               |
+| ---------------------- | -------------------------------- |
+| `@validator`           | `@field_validator`               |
+| `@root_validator`      | `@model_validator`               |
+| `class Config`         | `model_config = ConfigDict(...)` |
+| `orm_mode = True`      | `from_attributes = True`         |
+| `Optional[X]`          | `X \| None`                      |
+| `.dict()`              | `.model_dump()`                  |
+| `.parse_obj()`         | `.model_validate()`              |
+| `allow_mutation=False` | `frozen=True`                    |
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
+| ❌                              | ✅                                                |
+| ------------------------------- | ------------------------------------------------- |
 | `class Config: orm_mode = True` | `model_config = ConfigDict(from_attributes=True)` |
-| `@validator` | `@field_validator` |
-| `.dict()` / `.parse_obj()` | `.model_dump()` / `.model_validate()` |
-| `extra` не ограничен на входе | `extra="forbid"` |
-| `def f(tags=[])` | `Field(default_factory=list)` |
-| Секрет в схеме вывода | `Field(exclude=True)` |
-| Одна схема на чтение и запись | Раздельные Create/Out/Update |
+| `@validator`                    | `@field_validator`                                |
+| `.dict()` / `.parse_obj()`      | `.model_dump()` / `.model_validate()`             |
+| `extra` не ограничен на входе   | `extra="forbid"`                                  |
+| `def f(tags=[])`                | `Field(default_factory=list)`                     |
+| Секрет в схеме вывода           | `Field(exclude=True)`                             |
+| Одна схема на чтение и запись   | Раздельные Create/Out/Update                      |
 
 ## Чек-лист
 

@@ -78,22 +78,22 @@ setup_application(app, dp, bot=bot)
 
 ## Polling vs webhook
 
-| | Polling | Webhook |
-|---|---|---|
-| Инфраструктура | минимум | публичный HTTPS, TLS, nginx, secret |
-| Масштаб | один процесс | можно масштабировать приёмник |
-| Когда | MVP, небольшие боты | высокая нагрузка |
+|                | Polling             | Webhook                             |
+| -------------- | ------------------- | ----------------------------------- |
+| Инфраструктура | минимум             | публичный HTTPS, TLS, nginx, secret |
+| Масштаб        | один процесс        | можно масштабировать приёмник       |
+| Когда          | MVP, небольшие боты | высокая нагрузка                    |
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Вторая polling-копия | один инстанс |
-| `MemoryStorage` в проде | `RedisStorage` |
-| Токен в коде | env/`EnvironmentFile` |
-| Webhook без `secret_token` | `secret_token` + TLS |
-| Polling и webhook вместе | что-то одно |
-| Нет graceful shutdown | `TimeoutStopSec` + закрытие ресурсов |
+| ❌                         | ✅                                   |
+| -------------------------- | ------------------------------------ |
+| Вторая polling-копия       | один инстанс                         |
+| `MemoryStorage` в проде    | `RedisStorage`                       |
+| Токен в коде               | env/`EnvironmentFile`                |
+| Webhook без `secret_token` | `secret_token` + TLS                 |
+| Polling и webhook вместе   | что-то одно                          |
+| Нет graceful shutdown      | `TimeoutStopSec` + закрытие ресурсов |
 
 ## Чек-лист
 

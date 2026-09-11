@@ -51,13 +51,13 @@ metadata:
 
 ## Архитектура (слои)
 
-| Слой | Ответственность | Не имеет права |
-|---|---|---|
-| Presentation | вход/выход, валидация, один вызов сервиса | SQL, бизнес-логика, `try/except` бизнес-ошибок |
-| Service | бизнес-логика, транзакции, оркестрация, доменные исключения | `request`/`response`, прямой SQL |
-| Repository | доступ к данным, только запросы | бизнес-логика, `commit`/`rollback` |
-| Schema/DTO | форма и валидация данных | побочные эффекты |
-| Domain/Config | конфиг, исключения, логи, метаданные | прикладная логика |
+| Слой          | Ответственность                                             | Не имеет права                                 |
+| ------------- | ----------------------------------------------------------- | ---------------------------------------------- |
+| Presentation  | вход/выход, валидация, один вызов сервиса                   | SQL, бизнес-логика, `try/except` бизнес-ошибок |
+| Service       | бизнес-логика, транзакции, оркестрация, доменные исключения | `request`/`response`, прямой SQL               |
+| Repository    | доступ к данным, только запросы                             | бизнес-логика, `commit`/`rollback`             |
+| Schema/DTO    | форма и валидация данных                                    | побочные эффекты                               |
+| Domain/Config | конфиг, исключения, логи, метаданные                        | прикладная логика                              |
 
 - Зависимости — явно через `__init__`; fallback на репозиторий запрещён.
 - Репозиторий типизируется `Protocol` → простые моки.
@@ -78,12 +78,12 @@ metadata:
 
 ## Асинхронность
 
-| ❌ Запрещено | ✅ Замена |
-|---|---|
-| `requests.get()` | `httpx.AsyncClient` |
-| `time.sleep()` | `await asyncio.sleep()` |
+| ❌ Запрещено          | ✅ Замена                    |
+| --------------------- | ---------------------------- |
+| `requests.get()`      | `httpx.AsyncClient`          |
+| `time.sleep()`        | `await asyncio.sleep()`      |
 | `psycopg2`, `sqlite3` | `asyncpg` + SQLAlchemy async |
-| `open()` | `aiofiles.open()` |
+| `open()`              | `aiofiles.open()`            |
 
 - `async def` — если есть `await`; иначе `def`.
 - Блокирующее в async — только `run_in_threadpool`.
@@ -127,11 +127,11 @@ class Settings(BaseSettings):
 
 ## Логирование
 
-| ✅ | ❌ |
-|---|---|
+| ✅                                        | ❌                            |
+| ----------------------------------------- | ----------------------------- |
 | `logger.info("user_created", user_id=id)` | `print(f"User {id} created")` |
-| `logger.exception(...)` в `except` | f-строки в логах |
-| события `snake_case` прошедшего времени | «User Created» |
+| `logger.exception(...)` в `except`        | f-строки в логах              |
+| события `snake_case` прошедшего времени   | «User Created»                |
 
 - Контекст (`request_id`, `user_id`) — `structlog.contextvars`; очищать в `finally`.
 
@@ -179,20 +179,20 @@ uv run ruff check . && uv run ruff format . && uv run pyright && uv run pytest -
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| Функции без аннотаций | полная типизация, `pyright` зелёный |
-| Изменяемые дефолты (`def f(x=[])`) | `field(default_factory=list)` |
-| `except Exception:` / голый `except` | конкретные исключения |
-| `raise HTTPException` в сервисе | доменное исключение + маппинг |
-| `print()` / f-строки в логах | `logger.info("event", key=value)` |
-| `os.getenv()` вне `config.py` | `pydantic-settings` |
-| Хардкод секретов/URL | переменные окружения |
-| `time.sleep()`/`requests` в async | `asyncio.sleep`/`httpx` |
-| `commit()` в репозитории | транзакция в сервисе |
-| `Optional[X]`, `List[X]` | `X \| None`, `list[X]` |
-| Ручное создание сервиса | DI (`__init__`/`Depends`) |
-| `datetime.now()` без tz | `datetime.now(tz=UTC)` |
+| ❌                                   | ✅                                  |
+| ------------------------------------ | ----------------------------------- |
+| Функции без аннотаций                | полная типизация, `pyright` зелёный |
+| Изменяемые дефолты (`def f(x=[])`)   | `field(default_factory=list)`       |
+| `except Exception:` / голый `except` | конкретные исключения               |
+| `raise HTTPException` в сервисе      | доменное исключение + маппинг       |
+| `print()` / f-строки в логах         | `logger.info("event", key=value)`   |
+| `os.getenv()` вне `config.py`        | `pydantic-settings`                 |
+| Хардкод секретов/URL                 | переменные окружения                |
+| `time.sleep()`/`requests` в async    | `asyncio.sleep`/`httpx`             |
+| `commit()` в репозитории             | транзакция в сервисе                |
+| `Optional[X]`, `List[X]`             | `X \| None`, `list[X]`              |
+| Ручное создание сервиса              | DI (`__init__`/`Depends`)           |
+| `datetime.now()` без tz              | `datetime.now(tz=UTC)`              |
 
 ## Чек-лист code review
 
@@ -210,16 +210,16 @@ uv run ruff check . && uv run ruff format . && uv run pyright && uv run pytest -
 
 ## Справочники
 
-| Тема | Reference | Когда |
-|---|---|---|
-| Архитектура, слои, DI, транзакции | [references/architecture.md](references/architecture.md) | Проектирование сервисов/репозиториев |
-| Типизация, Protocol, Pyright | [references/typing.md](references/typing.md) | Аннотации, интерфейсы, конфиг типов |
-| Асинхронность | [references/async.md](references/async.md) | async/await, TaskGroup, timeout |
-| Ошибки и логи | [references/errors-logging.md](references/errors-logging.md) | Исключения, handlers, structlog |
-| Безопасность | [references/security.md](references/security.md) | Секреты, валидация, SQL, зависимости |
-| Тестирование | `python-testing` + [references/testing.md](references/testing.md) | Unit/BDD, фикстуры, моки |
-| Документирование | [references/documentation.md](references/documentation.md) | Docstrings, README, ADR |
-| Инструменты | [references/tooling.md](references/tooling.md) | uv, ruff, pyright, pre-commit |
+| Тема                              | Reference                                                         | Когда                                |
+| --------------------------------- | ----------------------------------------------------------------- | ------------------------------------ |
+| Архитектура, слои, DI, транзакции | [references/architecture.md](references/architecture.md)          | Проектирование сервисов/репозиториев |
+| Типизация, Protocol, Pyright      | [references/typing.md](references/typing.md)                      | Аннотации, интерфейсы, конфиг типов  |
+| Асинхронность                     | [references/async.md](references/async.md)                        | async/await, TaskGroup, timeout      |
+| Ошибки и логи                     | [references/errors-logging.md](references/errors-logging.md)      | Исключения, handlers, structlog      |
+| Безопасность                      | [references/security.md](references/security.md)                  | Секреты, валидация, SQL, зависимости |
+| Тестирование                      | `python-testing` + [references/testing.md](references/testing.md) | Unit/BDD, фикстуры, моки             |
+| Документирование                  | [references/documentation.md](references/documentation.md)        | Docstrings, README, ADR              |
+| Инструменты                       | [references/tooling.md](references/tooling.md)                    | uv, ruff, pyright, pre-commit        |
 
 ## Связанные навыки
 

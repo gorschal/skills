@@ -59,8 +59,8 @@ async function fetchUser(id) {
 ## Null-безопасность
 
 ```js
-const city = user?.address?.city ?? "Unknown";   // ✅
-const city = user.address.city || "Unknown";      // ❌ бросит при undefined
+const city = user?.address?.city ?? "Unknown"; // ✅
+const city = user.address.city || "Unknown"; // ❌ бросит при undefined
 ```
 
 ## Модули (ESM)
@@ -85,15 +85,15 @@ import { add } from "./utils/math.mjs";
 
 ## Запрещённые паттерны
 
-| ❌ | ✅ |
-|---|---|
-| `var` | `const`/`let` |
-| callback-стиль | `async/await` |
-| смешение ESM и CJS | один стиль |
-| sync I/O в Node | `fs/promises` |
-| `await` в цикле без нужды | `Promise.all` |
-| необработанные rejection | `try/catch`/`allSettled` |
-| мутация параметров | новые объекты |
+| ❌                        | ✅                       |
+| ------------------------- | ------------------------ |
+| `var`                     | `const`/`let`            |
+| callback-стиль            | `async/await`            |
+| смешение ESM и CJS        | один стиль               |
+| sync I/O в Node           | `fs/promises`            |
+| `await` в цикле без нужды | `Promise.all`            |
+| необработанные rejection  | `try/catch`/`allSettled` |
+| мутация параметров        | новые объекты            |
 
 ## Чек-лист
 

@@ -27,13 +27,13 @@ from faststream import AckPolicy
 async def handler(msg: PaymentProcessMessage) -> None: ...
 ```
 
-| Политика | On success | On error | Применение |
-|---|---|---|---|
-| `ACK_FIRST` | ack сразу | ack (потеря) | высокий throughput, потеря допустима |
-| `ACK` | ack | ack (без повтора) | идемпотентно и не критично |
-| `REJECT_ON_ERROR` | ack | reject (без повтора) | ядовитые сообщения |
-| `NACK_ON_ERROR` | ack | nack → redelivery | повторяемые операции |
-| `MANUAL` | ручной | ручной | полный контроль |
+| Политика          | On success | On error             | Применение                           |
+| ----------------- | ---------- | -------------------- | ------------------------------------ |
+| `ACK_FIRST`       | ack сразу  | ack (потеря)         | высокий throughput, потеря допустима |
+| `ACK`             | ack        | ack (без повтора)    | идемпотентно и не критично           |
+| `REJECT_ON_ERROR` | ack        | reject (без повтора) | ядовитые сообщения                   |
+| `NACK_ON_ERROR`   | ack        | nack → redelivery    | повторяемые операции                 |
+| `MANUAL`          | ручной     | ручной               | полный контроль                      |
 
 - Разрешение: subscriber > broker > дефолт брокера (NATS: `REJECT_ON_ERROR`).
 - Дефолт можно задать на брокере: `NatsBroker(ack_policy=AckPolicy.NACK_ON_ERROR)`.
@@ -78,23 +78,23 @@ async def process(self, message: PaymentProcessMessage) -> None:
 
 ## Маппинг ошибок
 
-| Ситуация | Действие |
-|---|---|
-| Восстановимая (сеть, таймаут) | `NACK_ON_ERROR` → redelivery |
-| Доменная, повтор бессмыслен | `REJECT_ON_ERROR`/`reject` (DLQ) |
-| Ядовитое сообщение | `reject` + лог |
-| Успех | ack |
+| Ситуация                      | Действие                         |
+| ----------------------------- | -------------------------------- |
+| Восстановимая (сеть, таймаут) | `NACK_ON_ERROR` → redelivery     |
+| Доменная, повтор бессмыслен   | `REJECT_ON_ERROR`/`reject` (DLQ) |
+| Ядовитое сообщение            | `reject` + лог                   |
+| Успех                         | ack                              |
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Свой retry-цикл в сервисе | `NACK_ON_ERROR`/JetStream |
-| Дефолтная ack «на удачу» | Явный `AckPolicy` |
-| Нет идемпотентности | Уникальный ключ + проверка |
-| `HTTPException` в сервисе | Доменное исключение |
-| `reject` для восстановимых ошибок | `nack` |
-| Ошибка молча проглатывается | ack/nack/reject + лог |
+| ❌                                | ✅                         |
+| --------------------------------- | -------------------------- |
+| Свой retry-цикл в сервисе         | `NACK_ON_ERROR`/JetStream  |
+| Дефолтная ack «на удачу»          | Явный `AckPolicy`          |
+| Нет идемпотентности               | Уникальный ключ + проверка |
+| `HTTPException` в сервисе         | Доменное исключение        |
+| `reject` для восстановимых ошибок | `nack`                     |
+| Ошибка молча проглатывается       | ack/nack/reject + лог      |
 
 ## Чек-лист
 

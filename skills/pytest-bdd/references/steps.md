@@ -24,12 +24,12 @@ def see_text(text: str, login_page: LoginPage) -> None:
 
 ## Парсеры
 
-| Парсер | Назначение | Пример |
-|---|---|---|
-| `string` (по умолчанию) | точное совпадение | `@given("я на странице")` |
-| `parsers.parse` | именованные поля `{x:Type}` | `parsers.parse("сумма {amount:d}")` |
-| `parsers.cfparse` | кардинальность `+ * ?` | `cfparse("{tags:Tag+}")` |
-| `parsers.re` | regex с группами `(?P<name>...)` | `parsers.re(r"(?P<n>\d+)")` |
+| Парсер                  | Назначение                       | Пример                              |
+| ----------------------- | -------------------------------- | ----------------------------------- |
+| `string` (по умолчанию) | точное совпадение                | `@given("я на странице")`           |
+| `parsers.parse`         | именованные поля `{x:Type}`      | `parsers.parse("сумма {amount:d}")` |
+| `parsers.cfparse`       | кардинальность `+ * ?`           | `cfparse("{tags:Tag+}")`            |
+| `parsers.re`            | regex с группами `(?P<name>...)` | `parsers.re(r"(?P<n>\d+)")`         |
 
 ```python
 @given(
@@ -106,16 +106,16 @@ def article(author, target_fixture="article"):
 
 ## Хуки
 
-| Хук | Когда |
-|---|---|
-| `pytest_bdd_before_scenario` | перед сценарием |
-| `pytest_bdd_after_scenario` | после (даже при падении) |
-| `pytest_bdd_before_step` | перед шагом |
-| `pytest_bdd_before_step_call` | перед вызовом с аргументами |
-| `pytest_bdd_after_step` | после успешного шага |
-| `pytest_bdd_step_error` | шаг упал (скриншот, диагностика) |
-| `pytest_bdd_step_func_lookup_error` | шаг не найден |
-| `pytest_bdd_apply_tag` | кастомная обработка тега |
+| Хук                                 | Когда                            |
+| ----------------------------------- | -------------------------------- |
+| `pytest_bdd_before_scenario`        | перед сценарием                  |
+| `pytest_bdd_after_scenario`         | после (даже при падении)         |
+| `pytest_bdd_before_step`            | перед шагом                      |
+| `pytest_bdd_before_step_call`       | перед вызовом с аргументами      |
+| `pytest_bdd_after_step`             | после успешного шага             |
+| `pytest_bdd_step_error`             | шаг упал (скриншот, диагностика) |
+| `pytest_bdd_step_func_lookup_error` | шаг не найден                    |
+| `pytest_bdd_apply_tag`              | кастомная обработка тега         |
 
 ## Конфигурация путей
 
@@ -143,14 +143,14 @@ pytest --generate-missing --feature features tests/functional
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| `string`-парсер там, где есть параметры | `parsers.parse`/`re` |
-| Возврат без `target_fixture` | `target_fixture="..."` |
-| Selenium/httpx в шаге | Page Object / Client |
-| Шаг делает несколько действий | Один action |
-| Общие шаги в каждом файле | `conftest.py`/`common_steps.py` |
-| `@given("there are <n>")` (v4-стиль) | `parsers.parse("there are {n}")` |
+| ❌                                      | ✅                               |
+| --------------------------------------- | -------------------------------- |
+| `string`-парсер там, где есть параметры | `parsers.parse`/`re`             |
+| Возврат без `target_fixture`            | `target_fixture="..."`           |
+| Selenium/httpx в шаге                   | Page Object / Client             |
+| Шаг делает несколько действий           | Один action                      |
+| Общие шаги в каждом файле               | `conftest.py`/`common_steps.py`  |
+| `@given("there are <n>")` (v4-стиль)    | `parsers.parse("there are {n}")` |
 
 ## Чек-лист
 

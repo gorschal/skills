@@ -24,13 +24,13 @@ aiogram полностью async. Блокирующая операция в х�
 
 aiogram **не** делает авто-retry.
 
-| Исключение | Когда | Что делать |
-|---|---|---|
-| `TelegramRetryAfter` | 429, есть `.retry_after` | подождать `retry_after`, снизить темп |
-| `TelegramForbiddenError` | бот заблокирован/кикнут | пометить неактивным, **не** падать |
-| `TelegramBadRequest` | битый markup, message not modified | логировать, чинить; часто не ретраить |
-| `TelegramNetworkError` | сеть/таймаут | ретрай с backoff |
-| `TelegramAPIError` | базовый | глобальный error handler |
+| Исключение               | Когда                              | Что делать                            |
+| ------------------------ | ---------------------------------- | ------------------------------------- |
+| `TelegramRetryAfter`     | 429, есть `.retry_after`           | подождать `retry_after`, снизить темп |
+| `TelegramForbiddenError` | бот заблокирован/кикнут            | пометить неактивным, **не** падать    |
+| `TelegramBadRequest`     | битый markup, message not modified | логировать, чинить; часто не ретраить |
+| `TelegramNetworkError`   | сеть/таймаут                       | ретрай с backoff                      |
+| `TelegramAPIError`       | базовый                            | глобальный error handler              |
 
 Глобальный обработчик обязателен:
 
@@ -76,15 +76,15 @@ async def on_error(event: ErrorEvent, bot: Bot) -> None:
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Два polling-процесса | один инстанс |
-| Sync-БД/`requests`/`time.sleep` | async |
-| Рассылка без throttle | throttle + per-user ошибки |
-| `except: pass` | глобальный handler + лог |
-| Нет graceful shutdown | закрывать ресурсы |
-| Игнор повторной доставки | идемпотентность |
-| Забыт `allowed_updates` | указать типы |
+| ❌                              | ✅                         |
+| ------------------------------- | -------------------------- |
+| Два polling-процесса            | один инстанс               |
+| Sync-БД/`requests`/`time.sleep` | async                      |
+| Рассылка без throttle           | throttle + per-user ошибки |
+| `except: pass`                  | глобальный handler + лог   |
+| Нет graceful shutdown           | закрывать ресурсы          |
+| Игнор повторной доставки        | идемпотентность            |
+| Забыт `allowed_updates`         | указать типы               |
 
 ## Чек-лист
 

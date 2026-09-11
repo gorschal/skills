@@ -100,14 +100,14 @@ class AuthClient(BaseAPIClient):
 
 ## Антипаттерны
 
-| ❌ | ✅ |
-|---|---|
-| Локаторы в step-функции | Константы Page Object |
-| `time.sleep(2)` | `WebDriverWait`/auto-wait |
-| Page Object без методов-действий | Метод на действие |
-| HTTP-вызовы в шаге | Метод API Client |
-| Ассерты в Page Object (для UI) | Ассерты в шагах (`then`) |
-| Хардкод base_url | Конфиг/фикстура |
+| ❌                               | ✅                        |
+| -------------------------------- | ------------------------- |
+| Локаторы в step-функции          | Константы Page Object     |
+| `time.sleep(2)`                  | `WebDriverWait`/auto-wait |
+| Page Object без методов-действий | Метод на действие         |
+| HTTP-вызовы в шаге               | Метод API Client          |
+| Ассерты в Page Object (для UI)   | Ассерты в шагах (`then`)  |
+| Хардкод base_url                 | Конфиг/фикстура           |
 
 ## Чек-лист
 

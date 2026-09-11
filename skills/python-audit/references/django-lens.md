@@ -5,15 +5,15 @@
 
 ## Линзы
 
-| Линза | Что проверяет |
-|---|---|
+| Линза          | Что проверяет                                                  |
+| -------------- | -------------------------------------------------------------- |
 | `architecture` | структура, модели, views, URLs, формы, сервисы, signals, admin |
-| `security` | OWASP, SQLi, XSS, CSRF, секреты, access control, settings |
-| `cleanup` | мёртвый код, неиспользуемые импорты, TODO/FIXME, дубли |
-| `legacy` | deprecated зависимости/импорты, незавершённые рефакторинги |
-| `deploy` | prod-settings, security headers, БД, Docker, CI, healthcheck |
-| `tests` | тесты без assertions, моки без проверок, хрупкие тесты |
-| `tasks` | Django Tasks: идемпотентность, ошибки, повторы |
+| `security`     | OWASP, SQLi, XSS, CSRF, секреты, access control, settings      |
+| `cleanup`      | мёртвый код, неиспользуемые импорты, TODO/FIXME, дубли         |
+| `legacy`       | deprecated зависимости/импорты, незавершённые рефакторинги     |
+| `deploy`       | prod-settings, security headers, БД, Docker, CI, healthcheck   |
+| `tests`        | тесты без assertions, моки без проверок, хрупкие тесты         |
+| `tasks`        | Django Tasks: идемпотентность, ошибки, повторы                 |
 
 ## architecture (`ARC`)
 
@@ -78,6 +78,7 @@
 
 ```markdown
 ### [SEC-001] SQL-инъекция в поиске
+
 **Файл:** `dashboard/views.py:42`
 **Тип:** A03:2021 Injection
 **Проблема:** f-строка в SQL.
