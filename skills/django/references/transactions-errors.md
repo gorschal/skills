@@ -111,8 +111,27 @@ def get_by_id(self, user_id: int) -> User:
 ```python
 import structlog
 from django.http import JsonResponse
+from django.shortcuts import render
 
 logger = structlog.get_logger(__name__)
+
+def wants_json(request) -> bool:
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return True
+    accept = request.headers.get("accept", "")
+    return "application/json" in accept and "text/html" not in accept
+
+def problem_response(request, *, status, code, detail, title="Error", errors=None):
+    """RFC 7807 problem+json для JSON-клиентов."""
+    body = {
+        "type": f"https://api.example.com/errors/{code.lower()}",
+        "title": title, "status": status, "detail": detail,
+        "instance": request.path, "code": code,
+        "request_id": getattr(request, "request_id", None),
+    }
+    if errors:
+        body["errors"] = errors
+    return JsonResponse(body, status=status, content_type="application/problem+json")
 
 class DomainErrorMiddleware:
     def __init__(self, get_response):
@@ -122,14 +141,23 @@ class DomainErrorMiddleware:
         try:
             return self.get_response(request)
         except DomainError as e:
-            return JsonResponse({"error": str(e), "code": type(e).__name__}, status=400)
+            return self._render(request, 400, type(e).__name__.upper(), str(e))
         except PermissionError:
-            return JsonResponse({"error": "Forbidden"}, status=403)
+            return self._render(request, 403, "FORBIDDEN", "Forbidden")
         except Exception:
             logger.exception("unhandled_error")
-            return JsonResponse({"error": "Internal Server Error"}, status=500)
+            return self._render(request, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
+
+    def _render(self, request, status, code, detail):
+        if wants_json(request):
+            return problem_response(request, status=status, code=code, detail=detail)
+        return render(request, "errors/error.html", {"status": status, "detail": detail}, status=status)
 ```
 
+- **Content negotiation**: JSON-клиентам (AJAX/`Accept: application/json`) — RFC 7807
+  (`application/problem+json`, канонический контракт — навык `api-design`);
+  браузеру — HTML-страница ошибки.
+- Ошибки валидации формы — `form.errors` во view, не через middleware.
 - Клиенту — безопасное сообщение; детали и стектрейс — только в логах.
 - Доменное исключение → 400; `PermissionError` → 403; прочее → 500.
 

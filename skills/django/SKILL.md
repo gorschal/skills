@@ -11,7 +11,7 @@ description: >
 license: MIT
 compatibility: opencode
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   domain: backend
   triggers: Django, ORM, QuerySet, select_related, prefetch_related, selectors, forms, migrations, manage.py, transactions, Django Tasks
   role: specialist
@@ -23,348 +23,214 @@ metadata:
 # Django
 
 Django 5.x для server-rendered приложений: тонкие views, сервисный слой,
-selectors, формы, контроль транзакций и производительности ORM.
+selectors, формы, транзакции, производительность ORM.
 
-> Общие практики языка (типизация, async, ошибки, логи, тесты, доки, инструменты)
-> — в навыке `python`. Здесь только Django-специфика.
+> Общие практики языка — навык `python`. Здесь только Django-специфика.
 
 ## Когда применять
 
-- Модели, ORM-запросы, оптимизация N+1, selectors.
-- Сервисный слой, транзакции, доменные исключения.
-- Forms и валидация, FBV/CBV views.
-- Миграции, настройки безопасности, unit-тесты Django-логики.
+- Модели, ORM, N+1, selectors; сервисный слой, транзакции.
+- Forms и валидация, FBV/CBV; миграции, безопасность, unit-тесты.
 
 ## Ключевые принципы
 
-1. **Бизнес-логика — в сервисах**, не во views и не в моделях.
+1. **Бизнес-логика — в сервисах**, не во views/моделях.
 2. **Views тонкие**: валидация формой → вызов сервиса → ответ.
 3. **Репозитории внедряются явно**, без fallback; сервис не знает про `request`.
 4. **Транзакции** — `transaction.atomic()`; побочные эффекты — `on_commit`.
-5. **Никаких N+1**: `select_related`/`prefetch_related` для связанных объектов.
+5. **Никаких N+1**: `select_related`/`prefetch_related`.
 6. **Время — UTC**: `timezone.now()`, `USE_TZ=True`.
-7. **Ошибки — доменными исключениями** + middleware для маппинга на ответ.
-8. **Тесты**: BDD — основное покрытие; unit — логика вне BDD и критичные ветки.
+7. **Ошибки — доменными исключениями** + middleware.
+8. **Тесты**: BDD — основное покрытие; unit — пробелы и критичные ветки.
 
 ## Архитектура (5 слоёв)
 
 | Слой | Файл | Ответственность |
 |---|---|---|
 | Views | `views.py` | HTTP, валидация формой, вызов сервиса, ответ |
-| Services | `services.py` | Бизнес-логика, транзакции, оркестрация. Без `request`/`response` |
-| Selectors | `selectors.py` | Чтение: сложные (JOIN, агрегации) или переиспользуемые запросы. Без мутаций |
-| Models | `models.py` | Структура данных, простые свойства, `__str__`. Без бизнес-логики |
-| Forms | `forms.py` | Только валидация данных |
+| Services | `services.py` | бизнес-логика, транзакции, оркестрация. Без `request` |
+| Selectors | `selectors.py` | чтение: сложные/переиспользуемые запросы. Без мутаций |
+| Models | `models.py` | данные, простые свойства, `__str__`. Без бизнес-логики |
+| Forms | `forms.py` | только валидация данных |
 
 ### Сервис
 
 ```python
-from typing import Protocol
-from django.db import transaction
-
-class UserRepository(Protocol):
-    def filter(self, **kwargs) -> "QuerySet": ...
-    def create_user(self, email: str, password: str) -> "User": ...
-
-class UserService:
-    def __init__(
-        self,
-        user_repo: UserRepository,                    # явно, без fallback
-        email_service: "EmailService | None" = None,  # вторичная — fallback ок
-    ) -> None:
-        self.user_repo = user_repo
-        self.email_service = email_service or EmailService()
-
-    def create_user(self, email: str, password: str) -> "User":
-        with transaction.atomic():
-            if self.user_repo.filter(email=email).exists():
-                raise UserAlreadyExistsError(email)
-            user = self.user_repo.create_user(email, password)
-            transaction.on_commit(lambda: self.email_service.send_welcome(user.id))
-            return user
+def create_user(self, email: str, password: str) -> User:
+    with transaction.atomic():
+        if self.user_repo.filter(email=email).exists():
+            raise UserAlreadyExistsError(email)
+        user = self.user_repo.create_user(email, password)
+        transaction.on_commit(lambda: self.email_service.send_welcome(user.id))
+        return user
 ```
 
-- Вся мутирующая логика — внутри `transaction.atomic()`.
-- Письма/Django Tasks — в `transaction.on_commit()`, не до коммита.
-- Сервис не обращается к `request`; принимает данные (`user_id`), не объекты запроса.
-- **Всё сохранение — через репозиторий.** Прямой `user.save()` в сервисе ломает
-  изоляцию unit-тестов (нужна БД) — запрещено.
+- Вся мутация — в `atomic()`; письма/задачи — в `on_commit`.
+- Сервис не знает про `request`; принимает данные (`user_id`).
+- **Всё сохранение — через репозиторий**; `user.save()` в сервисе запрещён.
 
 ### Selectors
 
 ```python
-def get_orders_with_items(user_id: int) -> "QuerySet[Order]":
-    """Заказы пользователя со связанными данными (без N+1)."""
-    return (
-        Order.objects.filter(user_id=user_id)
-        .select_related("customer")
-        .prefetch_related(
-            Prefetch("items", queryset=OrderItem.objects.select_related("product"))
-        )
-    )
+def get_orders_with_items(user_id: int) -> QuerySet[Order]:
+    return (Order.objects.filter(user_id=user_id).select_related("customer")
+            .prefetch_related("items__product"))
 ```
 
-- Selector — если запрос сложный (JOIN/агрегация) **или** переиспользуется ≥2 раз.
-- Простые `filter(...)`/`get(pk=...)` остаются в сервисе или менеджере модели.
+Selector — если запрос сложный (JOIN/агрегация) **или** переиспользуется ≥2 раз.
+Простые `filter`/`get` — в сервисе/менеджере.
 
 ### Views: FBV и CBV
 
 ```python
-# FBV — простой сценарий
-def order_list(request: HttpRequest) -> HttpResponse:
-    """Список заказов текущего пользователя с пагинацией."""
-    page_obj = Paginator(get_orders_with_items(request.user.id), 20).get_page(request.GET.get("page"))
-    return render(request, "orders/list.html", {"page_obj": page_obj})
-
-# CBV — CRUD-экран
-class OrderCreateView(LoginRequiredMixin, CreateView):
-    model = Order
-    form_class = OrderForm
-    success_url = reverse_lazy("orders:list")
-
-    def form_valid(self, form: OrderForm) -> HttpResponse:
-        self.object = OrderService(order_repo=Order.objects).create(
-            user_id=self.request.user.id, **form.cleaned_data
-        )
-        return redirect(self.get_success_url())
+# FBV: Paginator(get_orders_with_items(request.user.id), 20) → render(...)
+# CBV: form_valid → OrderService(...).create(user_id=request.user.id, **form.cleaned_data)
 ```
 
-- FBV — простые сценарии; CBV — CRUD-экраны. Логика в обоих случаях в сервисе.
-- `get_queryset()` вместо статического `queryset`, когда нужна динамика/права.
-- Проверять права (`LoginRequiredMixin`/`@login_required`), не отдавать чужие объекты.
+- FBV — простые сценарии; CBV — CRUD. Логика — в сервисе.
+- `get_queryset()` для динамики/прав; проверять права; не отдавать чужие объекты.
 
 Подробно: [references/architecture.md](references/architecture.md).
 
 ## ORM и производительность
 
-| ✅ Правильно | ❌ Запрещено |
+| ✅ | ❌ |
 |---|---|
-| `Order.objects.select_related("customer")` | `Order.objects.all()` + доступ в цикле |
+| `select_related("customer")` | `.all()` + доступ в цикле |
 | `.prefetch_related("items__product")` | `order.customer.name` в цикле (N+1) |
-| `only()`/`defer()` для части полей | тянуть все поля без нужды |
-| `annotate()`/`aggregate()`, `F()`, `Q()` | агрегация в Python |
+| `only()`/`defer()` | тянуть все поля |
+| `annotate`/`aggregate`, `F()`, `Q()` | агрегация в Python |
 | `bulk_create`/`bulk_update` | `save()` в цикле |
-| пагинация (`Paginator`) | `.all()` без пагинации в ответе |
-
-```python
-# вложенные связи
-orders = Order.objects.prefetch_related("items__product", "customer__profile")
-
-# массовые операции
-Product.objects.bulk_create(items, batch_size=1000)
-Product.objects.filter(category=old).update(category=new)
-
-# F() — операция на стороне БД
-Product.objects.update(price=F("price") * 1.1)
-```
+| `Paginator` | `.all()` без пагинации |
 
 Подробно: [references/orm.md](references/orm.md).
 
-## Работа со временем
+## Время, ошибки, формы
+
+`USE_TZ=True`, `TIME_ZONE="UTC"`; в коде — `timezone.now()` (не `datetime.now()`).
 
 ```python
-# base.py
-USE_TZ = True
-TIME_ZONE = "UTC"
-
-from django.utils import timezone
-now = timezone.now()      # ✅
-datetime.now()            # ❌ без tz
-```
-
-## Обработка ошибок
-
-```python
-# exceptions.py
 class DomainError(Exception): ...
 
-class UserAlreadyExistsError(DomainError): ...
-
-# middleware.py
+# middleware.py — JSON-клиентам RFC 7807, браузеру HTML
 class DomainErrorMiddleware:
     def __call__(self, request):
         try:
             return self.get_response(request)
         except DomainError as e:
-            return JsonResponse({"error": str(e), "code": type(e).__name__}, status=400)
-        except PermissionError:
-            return JsonResponse({"error": "Forbidden"}, status=403)
+            return self._render(request, 400, type(e).__name__.upper(), str(e))
         except Exception:
             logger.exception("unhandled_error")
-            return JsonResponse({"error": "Internal Server Error"}, status=500)
+            return self._render(request, 500, "INTERNAL_SERVER_ERROR", "Internal Server Error")
 ```
 
-- `DomainError` пробрасывается из сервиса, обрабатывается middleware.
-- `DoesNotExist` маппится в сервисе в доменное исключение (`raise ... from e`).
-- Ошибки валидации формы — возвращать форму с `form.errors`.
-- Стектрейс клиенту не отдавать.
+- **Content negotiation**: JSON-клиентам — RFC 7807 (`api-design`); браузеру — HTML.
+- `DoesNotExist` маппится в сервисе (`raise ... from e`); ошибки формы — `form.errors`.
+- Валидация — в форме (`clean_<field>`), не во view; `fields` без `"__all__"`.
 
 Подробно: [references/transactions-errors.md](references/transactions-errors.md).
-
-## Формы и валидация
-
-```python
-class SignupForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ["email", "username"]
-
-    def clean_email(self) -> str:
-        email = self.cleaned_data["email"].lower()
-        if User.objects.filter(email__iexact=email).exists():
-            raise forms.ValidationError("Email уже занят")
-        return email
-```
-
-- Вся валидация — в форме (`clean_<field>`, `clean`), не во view.
-- `ModelForm` где возможно; `fields` перечислять явно, не `"__all__"`.
-- View только проверяет `form.is_valid()` и вызывает сервис.
 
 ## Миграции
 
 ```bash
 python manage.py makemigrations
-python manage.py sqlmigrate app 0004        # посмотреть реальный SQL
+python manage.py sqlmigrate app 0004
 python manage.py makemigrations --check --dry-run   # CI
 ```
 
-- Данные — только в `RunPython`, всегда с `reverse_code`.
-- В `RunPython` — `apps.get_model(...)`, не прямой импорт модели.
-- Схему и данные разделять на разные миграции.
-- Применённые на проде миграции не редактировать.
-- `atomic = False`, concurrent-индексы, батч-backfill, zero-downtime —
-  в навыке `migration-safety`.
+- Данные — только в `RunPython`, с `reverse_code` и `apps.get_model`.
+- Схему и данные — в разных миграциях; применённые не редактировать.
+- `atomic=False`, concurrent-индексы, backfill, zero-downtime — `migration-safety`.
 
 Подробно: [references/migrations.md](references/migrations.md).
 
 ## Логирование
 
-```python
-import structlog
-logger = structlog.get_logger(__name__)
-
-logger.info("user_created", user_id=user.id)
-logger.exception("payment_failed", payment_id=str(payment_id))
-```
-
-- structlog; события `snake_case` прошедшего времени; параметры отдельными
-  `key=value`; без `print` и f-строк.
+- structlog; события `snake_case` прошедшего времени, `key=value`; без `print`/f-строк.
 - `request_id`/`user_id` — через `structlog.contextvars`, очищать в `finally`.
 
 ## Тестирование
 
-Политика: **BDD — основное сквозное покрытие**; unit — логика вне BDD и
-критичные ветки. Unit не дублирует BDD.
+Политика: **BDD — основное покрытие**; unit — пробелы и критичные ветки.
 
-- pytest-функции и фикстуры, **не** `unittest.TestCase`/`django.test.TestCase`.
-- Без БД, HTTP и `TestClient`: репозиторий — `Mock`, транзакции — патчатся.
+- pytest-функции/фикстуры, **не** `unittest.TestCase`/`django.test.TestCase`.
+- Без БД/HTTP: репозиторий — `Mock`, `transaction.atomic`/`on_commit` — патчить.
 
-```python
-from unittest.mock import Mock, patch
-import pytest
-
-@patch("app.services.transaction.atomic")
-@patch("app.services.transaction.on_commit")
-def test_create_user_raises_when_email_taken(mock_on_commit, mock_atomic) -> None:
-    repo = Mock()
-    repo.filter.return_value.exists.return_value = True
-    service = UserService(user_repo=repo)
-
-    with pytest.raises(UserAlreadyExistsError):
-        service.create_user("taken@example.com", "password123")
-```
-
-Что тестируем: бизнес-логику сервисов, тела сигналов и задач, сложные
-валидаторы, логику вне BDD. Что нет: поля моделей, `__str__`, стандартную
-валидацию форм, HTTP/views (BDD).
+Тестируем: логику сервисов, тела сигналов/задач, сложные валидаторы. Не тестируем:
+поля моделей, `__str__`, стандартную валидацию форм, HTTP/views (BDD).
 
 Подробно: [references/testing.md](references/testing.md).
 
 ## Документирование
 
-- Django views — **максимально подробно**: поведение, вход/выход, побочные
-  эффекты, делегирование в сервис (аудитория — мейнтейнер, язык RU).
-- Сервисы — Google-style: «почему» + ограничения, `Args/Returns/Raises/Side Effects`.
-- Selectors — смысл запроса и особенности.
-- Тесты — кратко, одной строкой для нетривиального кейса.
-- Не документировать `__init__`, `__str__`, одно-строчные геттеры, простой CRUD.
+- Django views — подробно: поведение, вход/выход, побочные эффекты (RU).
+- Сервисы — Google-style: «почему» + ограничения.
+- Selectors — смысл запроса; тесты — кратко.
+- Не документировать `__init__`, `__str__`, геттеры, простой CRUD.
 
-Общая матрица — в навыке `python`, `references/documentation.md`.
+Общая матрица — навык `python`, `references/documentation.md`.
 
 ## Безопасность
 
-- `DEBUG=False`, `ALLOWED_HOSTS` — только нужные домены, `SECRET_KEY` из env.
-- HTTPS: `SECURE_SSL_REDIRECT`, `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`,
-  `SECURE_HSTS_SECONDS > 0`, `X_FRAME_OPTIONS="DENY"`.
-- CSRF: не использовать `@csrf_exempt` без причины; `{% csrf_token %}` в формах.
-- XSS: не использовать `|safe`/`mark_safe` на пользовательских данных.
-- SQL: только ORM/параметры; `raw`/`extra` с f-строками запрещены.
-- IDOR: `get_queryset()` фильтрует по `request.user`; проверка владельца.
-- Mass assignment: `fields` перечислять, не `"__all__"`.
-- Загрузки: проверять тип, размер, имя; хранить вне кода.
-- Не логировать пароли/токены; `AUTH_PASSWORD_VALIDATORS` не пустой.
+- `DEBUG=False`, `ALLOWED_HOSTS` ограничен, `SECRET_KEY` из env.
+- HTTPS: `SECURE_SSL_REDIRECT`, secure cookies, HSTS, `X_FRAME_OPTIONS="DENY"`.
+- CSRF: без `@csrf_exempt` без причины; XSS: без `|safe`/`mark_safe` на вводе.
+- SQL — только ORM/параметры; IDOR: `get_queryset()` по `request.user`.
+- Mass assignment: `fields` явно; загрузки проверять; не логировать пароли/токены.
 
-Подробно: [references/security.md](references/security.md).
+Подробно: [references/security.md](references/security.md) и навык `security`.
 
 ## Инструменты
 
 ```bash
 docker compose exec django uv run python manage.py test
 docker compose exec django uv run python manage.py makemigrations --check --dry-run
-docker compose exec django uv run ruff check . && docker compose exec django uv run ruff format --check .
-docker compose exec django uv run pyright
+docker compose exec django uv run ruff check . && docker compose exec django uv run pyright
 ```
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
+| ❌ | ✅ |
 |---|---|
-| Бизнес-логика во view | Вызов `UserService.create_user()` |
-| Бизнес-логика в модели | Сервис |
-| `fallback` на репозиторий в `__init__` | Явная передача репозитория |
+| Бизнес-логика во view/модели | сервис |
+| `fallback` на репозиторий | явная передача |
 | `user.save()` в сервисе | `self.user_repo.create_user(...)` |
 | `send_email.enqueue()` внутри транзакции | `transaction.on_commit(...)` |
 | `Order.objects.all()` в цикле | `select_related`/`prefetch_related` |
-| `.all()` без пагинации в ответе | `Paginator` |
+| `.all()` без пагинации | `Paginator` |
 | `datetime.now()` | `timezone.now()` |
 | `print(f"...")` | `logger.info("event", key=value)` |
-| `fields = "__all__"` | Явный список полей |
+| `fields = "__all__"` | явный список |
 | `@csrf_exempt` без причины | CSRF-защита |
-| `unittest.TestCase` в unit-тестах | pytest-функции/фикстуры |
+| `unittest.TestCase` в unit | pytest-функции |
 
 ## Чек-лист code review
 
 - [ ] Бизнес-логика в сервисах, views тонкие, модели без логики.
-- [ ] Репозитории внедрены явно (без fallback); сервис не знает про `request`.
-- [ ] Вся мутация — в `transaction.atomic()`; побочные эффекты в `on_commit`.
-- [ ] Нет прямого `save()` в сервисе.
-- [ ] Нет N+1; сложные/переиспользуемые запросы — в selectors.
-- [ ] Пагинация на списочных эндпоинтах.
+- [ ] Репозитории внедрены явно; сервис не знает про `request`.
+- [ ] Мутация в `atomic()`; эффекты в `on_commit`; нет `save()` в сервисе.
+- [ ] Нет N+1; сложные запросы — в selectors; пагинация есть.
 - [ ] `timezone.now()`, `USE_TZ=True`.
 - [ ] `DomainError` → middleware; `DoesNotExist` маппится в сервисе.
-- [ ] Валидация — в формах; `fields` без `"__all__"`.
-- [ ] Миграции: `sqlmigrate` проверен, `RunPython` с `reverse_code`.
+- [ ] Валидация в формах; `fields` без `"__all__"`.
+- [ ] Миграции: `sqlmigrate`, `RunPython` с `reverse_code`.
 - [ ] Настройки безопасности (DEBUG, ALLOWED_HOSTS, cookies, HSTS).
-- [ ] Unit-тесты не дублируют BDD; репозитории/транзакции замоканы.
-- [ ] Логи structlog, события `snake_case`; секреты не логируются.
-- [ ] Docstring Django views подробный; типизация присутствует.
-- [ ] `ruff check`, `ruff format --check`, `pyright`, тесты проходят.
+- [ ] Unit не дублирует BDD; репозитории/транзакции замоканы.
+- [ ] Логи structlog; docstring views; `ruff`/`pyright`/тесты проходят.
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
+| Тема | Reference | Когда |
 |---|---|---|
-| Архитектура, слои, DI, forms, views | [references/architecture.md](references/architecture.md) | Проектирование сервисов/selectors/views |
-| ORM и производительность | [references/orm.md](references/orm.md) | Модели, N+1, managers, пагинация |
-| Транзакции, ошибки, логи | [references/transactions-errors.md](references/transactions-errors.md) | atomic/on_commit, доменные исключения, structlog |
-| Миграции | [references/migrations.md](references/migrations.md) | makemigrations, RunPython, безопасные изменения |
-| Безопасность | [references/security.md](references/security.md) | settings, CSRF/XSS/SQLi, IDOR, загрузки |
-| Тестирование | [references/testing.md](references/testing.md) | unit-тесты сервисов, моки, границы BDD |
+| Архитектура, слои, DI, forms, views | [references/architecture.md](references/architecture.md) | Проектирование |
+| ORM и производительность | [references/orm.md](references/orm.md) | Модели, N+1, пагинация |
+| Транзакции, ошибки, логи | [references/transactions-errors.md](references/transactions-errors.md) | atomic/on_commit, исключения |
+| Миграции | [references/migrations.md](references/migrations.md) | makemigrations, RunPython |
+| Безопасность | [references/security.md](references/security.md) | settings, CSRF/XSS/SQLi, IDOR |
+| Тестирование | [references/testing.md](references/testing.md) | unit сервисов, моки, BDD |
 
 ## Связанные навыки
 
-- `python` — общие практики языка (типизация, ошибки, логи, доки, инструменты).
-- `python-testing` / `pytest-bdd` — тестовая инфраструктура и BDD.
-- `security` — расширенный чек-лист безопасности.
-- `migration-safety` — zero-downtime миграции, concurrent-индексы, backfill.
-- `postgres` — индексы, планы, производительность БД.
+- `python` — общие практики; `python-testing`/`pytest-bdd` — тесты.
+- `security` — расширенный чек-лист; `migration-safety` — миграции.
+- `postgres` — индексы, планы, производительность.

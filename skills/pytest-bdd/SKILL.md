@@ -58,22 +58,12 @@ UI/API — в Page Objects / Clients. В монорепозитории **BDD �
 ## Структура проекта
 
 ```
-project_root/
-├── conftest.py
-├── pytest.ini / pyproject.toml
-├── features/
-│   ├── auth/
-│   ├── payments/
-│   └── webhooks/
-├── tests/
-│   ├── clients/            # Page Objects + API Clients
-│   ├── step_definitions/
-│   │   ├── conftest.py
-│   │   ├── common_steps.py
-│   │   └── test_login_steps.py
-│   └── utils/
-├── data/                   # тестовые данные
-└── reports/
+features/<domain>/*.feature
+tests/
+├── clients/            # Page Objects + API Clients
+├── step_definitions/   # conftest.py, common_steps.py, test_*_steps.py
+└── utils/
+data/  reports/  conftest.py  pytest.ini
 ```
 
 ## Gherkin
@@ -105,19 +95,11 @@ Feature: Создание платежа
 ## Step Definitions
 
 ```python
-from pytest_bdd import given, when, then, parsers, scenarios
-
 scenarios("../../features/auth/login.feature")
 
 @given(parsers.parse("я на странице входа"), target_fixture="login_page")
 def open_login_page(browser) -> LoginPage:
-    page = LoginPage(browser)
-    page.open()
-    return page
-
-@when(parsers.parse('я ввожу логин "{login}"'))
-def enter_login(login_page: LoginPage, login: str) -> None:
-    login_page.enter_email(login)
+    return LoginPage(browser).open()
 
 @then(parsers.parse('я вижу сообщение "{message}"'))
 def check_message(login_page: LoginPage, message: str) -> None:
@@ -136,14 +118,10 @@ def check_message(login_page: LoginPage, message: str) -> None:
 ```python
 class BasePage:
     def __init__(self, driver, timeout: int = 10) -> None:
-        self.driver = driver
         self.wait = WebDriverWait(driver, timeout)
 
     def click(self, locator: tuple) -> None:
         self.wait.until(EC.element_to_be_clickable(locator)).click()
-
-    def get_text(self, locator: tuple) -> str:
-        return self.wait.until(EC.presence_of_element_located(locator)).text
 ```
 
 - Локаторы — константы класса.
@@ -157,14 +135,12 @@ class BasePage:
 ```python
 @pytest.fixture
 def context() -> dict:
-    """Общий контекст сценария (токены, id, временные данные)."""
+    """Общий контекст сценария (токены, id)."""
     return {}
 
 @pytest.fixture(scope="function")
 def browser():
-    options = Options()
-    options.add_argument("--headless=new")
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(options=Options())
     yield driver
     driver.quit()
 ```
@@ -195,12 +171,9 @@ pytest --cucumberjson=reports/cucumber.json
 - В CI: только `not wip`, артефакты — HTML/Cucumber-отчёт + скриншоты.
 
 ```python
-def pytest_bdd_step_error(request, feature, scenario, step, step_func, step_func_args, exception):
-    browser = request.getfixturevalue("browser") if "browser" in request.fixturenames else None
-    if browser:
-        path = Path("screenshots") / f"{scenario.name}_{step.name}.png".replace(" ", "_")
-        path.parent.mkdir(exist_ok=True)
-        browser.save_screenshot(str(path))
+def pytest_bdd_step_error(request, scenario, step, **kwargs):
+    browser = request.getfixturevalue("browser")
+    browser.save_screenshot(f"screenshots/{scenario.name}_{step.name}.png")
 ```
 
 Подробно: [references/reporting-ci.md](references/reporting-ci.md).

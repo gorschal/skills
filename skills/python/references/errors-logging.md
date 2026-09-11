@@ -72,21 +72,22 @@ except User.DoesNotExist as e:
 Доменное исключение → транспортный ответ в одном месте:
 
 - **FastAPI**: `@app.exception_handler(DomainError)` + handler для
-  `RequestValidationError` и `Exception` (без утечки стектрейса).
-- **Django**: middleware, ловящее `DomainError` → JSON-ответ.
-- **FastStream/NATS**: hooks → nack/retry/DLQ.
+  `RequestValidationError` и `Exception` (без утечки стектрейса); формат —
+  RFC 7807 (`application/problem+json`, навык `api-design`).
+- **Django**: middleware, ловящее `DomainError` → JSON-ответ (тот же формат).
+- **FastStream/NATS**: `AckPolicy` → ack/nack/reject.
 
 ```python
-# FastAPI, схематично
+# FastAPI, схематично; problem(...) формирует RFC 7807
 @app.exception_handler(DomainError)
 async def domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:
     status = {UserNotFoundError: 404}.get(type(exc), 400)
-    return JSONResponse(status_code=status, content={"code": type(exc).__name__, "detail": str(exc)})
+    return problem(request, status=status, code=type(exc).__name__.upper(), detail=str(exc))
 
 @app.exception_handler(Exception)
 async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
     logger.exception("unhandled_error")
-    return JSONResponse(status_code=500, content={"code": "internal_error", "detail": "Internal Server Error"})
+    return problem(request, status=500, code="INTERNAL_SERVER_ERROR", detail="Internal Server Error")
 ```
 
 - Клиенту — безопасное сообщение; детали — только в логах.

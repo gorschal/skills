@@ -78,12 +78,7 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
 
-def get_payment_repository(db: AsyncSession = Depends(get_db)) -> PaymentRepository:
-    return PaymentRepository(db)
-
-def get_payment_service(
-    repo: PaymentRepository = Depends(get_payment_repository),
-) -> PaymentService:
+def get_payment_service(repo: PaymentRepository = Depends(get_payment_repository)) -> PaymentService:
     return PaymentService(repo)
 ```
 
@@ -99,14 +94,12 @@ def get_payment_service(
   обрабатывает один потребитель группы.
 
 ```python
-# публикация
 await broker.publish(OrderCreated(...), subject="orders.created")
 
-# подписка с queue group
 @broker.subscriber("orders.created", queue="orders-workers")
 async def on_order_created(msg: OrderCreated) -> None: ...
 
-# RPC (blocking request)
+# RPC
 msg = await broker.request(GetOrderStatus(order_id=...), subject="orders.get_status")
 status = OrderStatus.model_validate_json(msg.body)
 ```
@@ -122,13 +115,7 @@ status = OrderStatus.model_validate_json(msg.body)
 class PaymentProcessMessage(BaseModel):
     payment_id: UUID
     amount: int = Field(gt=0)
-    currency: str = Field(min_length=3, max_length=3)
     model_config = ConfigDict(extra="forbid")
-
-class PaymentResult(BaseModel):
-    payment_id: UUID
-    status: Literal["success", "failed"]
-    model_config = ConfigDict(from_attributes=True)
 ```
 
 - Все входящие/исходящие сообщения — Pydantic-модели.
@@ -142,8 +129,6 @@ class PaymentResult(BaseModel):
 FastStream управляет подтверждениями через `AckPolicy`:
 
 ```python
-from faststream import AckPolicy
-
 @broker.subscriber("payments.process", ack_policy=AckPolicy.NACK_ON_ERROR)
 async def handler(msg: PaymentProcessMessage) -> None: ...
 ```
@@ -177,19 +162,7 @@ class InsufficientFundsError(DomainError): ...
 
 ## Конфигурация и логирование
 
-```python
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-class Settings(BaseSettings):
-    nats_url: str
-    database_url: str
-    debug: bool = False
-    model_config = SettingsConfigDict(env_file=".env")
-
-settings = Settings()
-```
-
-- `os.getenv()` вне config запрещён; секреты — из окружения.
+- `pydantic-settings`; `os.getenv()` вне config запрещён; секреты — из окружения.
 - structlog: события `snake_case`, параметры `key=value`, без `print`/f-строк.
 - Контекст (`request_id`, `correlation_id`) — через `structlog.contextvars` /
   FastStream `Context`; очищать в `finally`.
@@ -200,16 +173,6 @@ settings = Settings()
 - Unit — бизнес-логика сервисов вне BDD и критичные ветки; зависимости `AsyncMock`.
 - `TestNatsBroker` — in-memory проверка handler'ов без реального NATS.
 - Не тестировать Pydantic-валидацию и тонкий проброс данных.
-
-```python
-async def test_process_payment_idempotent() -> None:
-    repo = AsyncMock()
-    repo.is_processed.return_value = True
-    service = PaymentService(repo=repo)
-
-    with pytest.raises(PaymentAlreadyProcessedError):
-        await service.process(PaymentProcessMessage(...))
-```
 
 Подробно: [references/testing.md](references/testing.md).
 

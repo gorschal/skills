@@ -10,7 +10,7 @@ description: >
 license: MIT
 compatibility: opencode
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   domain: backend
   triggers: FastAPI, APIRouter, Depends, Pydantic, SQLAlchemy, asyncpg, httpx, OpenAPI, lifespan
   role: specialist
@@ -24,153 +24,71 @@ metadata:
 FastAPI 0.115+ для async API: 4 слоя, DI через `Depends`, Pydantic v2,
 read-only доступ к таблицам, которыми владеет Django.
 
-> Общие практики языка — в навыке `python`. Схемой БД владеет Django (навык
-> `django`); FastAPI — **read-only потребитель**.
+> Общие практики языка — `python`. Схемой БД владеет Django (`django`); FastAPI —
+> **read-only потребитель**.
 
 ## Когда применять
 
-- Роутеры, зависимости, сервисы, репозитории, Pydantic-схемы.
-- Чтение данных из БД, которой владеет Django.
-- Обработка ошибок, JWT-аутентификация, CORS, OpenAPI/ReDoc.
-- Unit-тесты сервисов.
+- Роутеры, DI, сервисы, репозитории, Pydantic-схемы.
+- Чтение данных из БД Django; ошибки, JWT, CORS, OpenAPI/ReDoc; unit-тесты.
 
 ## Ключевые принципы
 
 1. **4 слоя:** Router → Service → Repository → Schemas. Границы неприкосновенны.
-2. **Router тонкий**: HTTP-параметры, `Depends()`, один вызов сервиса.
+2. **Router тонкий**: параметры, `Depends()`, один вызов сервиса.
 3. **Бизнес-логика — в сервисе**; `HTTPException` в сервисе запрещён.
-4. **Репозиторий — только доступ к данным**, без `commit`/`rollback` и бизнес-логики.
-5. **Read-only:** схемой и миграциями владеет Django. FastAPI не создаёт таблицы
-   и не пишет миграции.
+4. **Репозиторий — только доступ к данным**, без `commit`/`rollback`.
+5. **Read-only:** схема/миграции — Django; FastAPI не создаёт таблицы.
 6. **DI через `Depends`**; ручное создание сервисов запрещено.
 7. **Pydantic v2:** `extra="forbid"` на входе, `from_attributes=True` на выходе.
-8. **Ошибки — доменными исключениями** + глобальные handlers.
-9. **Тесты:** BDD — основное покрытие; unit — логика вне BDD, зависимости `AsyncMock`.
-10. **Docstring эндпоинтов — English** (попадает в ReDoc/OpenAPI).
+8. **Ошибки — доменными исключениями** + глобальные handlers (RFC 7807).
+9. **Тесты:** BDD — покрытие; unit — пробелы, зависимости `AsyncMock`.
+10. **Docstring эндпоинтов — English** (ReDoc/OpenAPI).
 
 ## Архитектура (4 слоя)
 
 | Слой | Файл | Разрешено |
 |---|---|---|
 | Router | `*_router.py` | HTTP-параметры, `Depends()`, один вызов сервиса |
-| Service | `*_service.py` | Бизнес-логика, транзакции, доменные исключения |
-| Repository | `*_repository.py` | Только запросы к БД (SQLAlchemy), без commit |
-| Schemas | `*_schemas.py` | Только Pydantic-модели |
+| Service | `*_service.py` | бизнес-логика, транзакции, доменные исключения |
+| Repository | `*_repository.py` | только запросы к БД (SQLAlchemy), без commit |
+| Schemas | `*_schemas.py` | только Pydantic-модели |
 
-### Repository
-
-```python
-from typing import TypedDict
-from uuid import UUID
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
-
-class PaymentRow(TypedDict):
-    id: UUID
-    account_id: UUID
-    amount: int
-
-class PaymentRepository:
-    def __init__(self, session: AsyncSession) -> None:
-        self.session = session
-
-    async def get_with_account(self, payment_id: UUID) -> PaymentRow | None:
-        query = (
-            select(Payment.id, Payment.account_id, Payment.amount)
-            .join(Account, Payment.account_id == Account.id)
-            .where(Payment.id == payment_id)
-        )
-        row = (await self.session.execute(query)).first()
-        return PaymentRow(**row._mapping) if row else None
-```
-
-- Только SQLAlchemy (ORM поверх существующих таблиц или Core).
-- Возврат: `None` / `TypedDict | None` / Pydantic / `list[...]`.
-- ❌ `commit()`/`rollback()`, бизнес-логика, ORM-логика в сервисе.
-- ❌ `create_all`, Alembic, свои миграции — схема принадлежит Django.
-
-### Service
+Псевдо-шаблон (детали — в references):
 
 ```python
-class PaymentService:
-    def __init__(self, repo: PaymentRepository) -> None:
-        self.repo = repo
-
-    async def get_payment(self, payment_id: UUID) -> PaymentOut:
-        payment = await self.repo.get_with_account(payment_id)
-        if payment is None:
-            raise PaymentNotFoundError(payment_id)
-        return PaymentOut.model_validate(payment)
-```
-
-- Зависимости — через `__init__`; роутер получает сервис через `Depends`.
-- Сервис не знает про `Request`/`Response`; выбрасывает доменные исключения.
-
-### Router
-
-```python
-from fastapi import APIRouter, Depends, status
-
-router = APIRouter(prefix="/payments", tags=["payments"])
-
-@router.get("/{payment_id}", response_model=PaymentOut)
-async def get_payment(
-    payment_id: UUID,
-    service: PaymentService = Depends(get_payment_service),
-) -> PaymentOut:
-    """Return a single payment with its account.
-
-    Raises:
-        404: Payment not found.
-    """
+# repository: select(...) → TypedDict/Pydantic; без commit
+# service: repo через __init__; raise DomainError; return Out.model_validate(...)
+# router: @router.get(..., response_model=Out)
+async def get_payment(payment_id: UUID, service: PaymentService = Depends(get_payment_service)) -> PaymentOut:
     return await service.get_payment(payment_id)
 ```
+
+- Только SQLAlchemy (ORM поверх существующих таблиц / Core); возврат `None`/`TypedDict`/Pydantic/`list`.
+- ❌ `commit`/`rollback`, бизнес-логика в репозитории, `create_all`/Alembic (схема — Django).
 
 Подробно: [references/architecture.md](references/architecture.md).
 
 ## Dependency Injection
 
 ```python
-from collections.abc import AsyncGenerator
-from fastapi import Depends
-
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async with async_session_maker() as session:
         yield session
 
-def get_payment_repository(db: AsyncSession = Depends(get_db)) -> PaymentRepository:
-    return PaymentRepository(db)
-
-def get_payment_service(
-    repo: PaymentRepository = Depends(get_payment_repository),
-) -> PaymentService:
+def get_payment_service(repo: PaymentRepository = Depends(get_payment_repository)) -> PaymentService:
     return PaymentService(repo)
 ```
 
-- Ресурсы с cleanup — через `yield`; сервисы/репозитории — обычные фабрики.
-- ❌ `service = PaymentService(db)` в роутере — только `Depends`.
-- В тестах зависимости подменяются `app.dependency_overrides`.
+- Ресурсы — `yield`; сервисы/репозитории — обычные фабрики.
+- ❌ `PaymentService(db)` в роутере; в тестах — `app.dependency_overrides`.
 
 ## Доступ к данным (read-only)
 
-- **Схема и миграции — Django.** FastAPI не создаёт таблицы и не пишет миграции.
-- **ORM поверх существующих таблиц** для типизированного чтения; **Core**
-  (`select()`) — для сложных/аналитических запросов.
-- Без `Base.metadata.create_all()` и Alembic. Дрейф схемы отслеживается
-  контрактным тестом.
-- Eager loading обязателен: `selectinload`/`joinedload` или `lazy="raise"` —
-  никаких ленивых запросов в async.
-- Запись: только через согласованный контракт с Django (API/события); транзакция
-  в таком случае — в сервисе, `commit` — не в репозитории.
-
-```python
-# сложное чтение через Core
-stmt = (
-    select(Payment.id, func.sum(Payment.amount).label("total"))
-    .where(Payment.account_id == account_id)
-    .group_by(Payment.id)
-)
-```
+- **Схема и миграции — Django**; без `create_all`/Alembic; дрейф — контрактным тестом.
+- **ORM поверх существующих таблиц**; **Core** — для сложных/аналитических запросов.
+- Eager loading обязателен: `selectinload`/`joinedload`/`lazy="raise"`.
+- Запись — только по согласованному контракту с Django; транзакция в сервисе.
 
 Подробно: [references/data-access.md](references/data-access.md).
 
@@ -178,141 +96,81 @@ stmt = (
 
 ```python
 class PaymentCreate(BaseModel):
-    account_id: UUID
     amount: int = Field(gt=0)
     model_config = ConfigDict(extra="forbid")
 
 class PaymentOut(BaseModel):
     id: UUID
-    account_id: UUID
-    amount: int
     model_config = ConfigDict(from_attributes=True)
-
-class PaymentUpdate(BaseModel):
-    amount: int | None = Field(default=None, gt=0)
-    model_config = ConfigDict(extra="forbid")
 ```
 
-- Три схемы: Create / Out / Update. `extra="forbid"` на входе.
-- `from_attributes=True` — только для выходных/ORM-схем.
-- `Annotated` для повторяющихся ограничений; `field_validator`/`model_validator`.
-- ❌ `class Config`, `orm_mode = True`, `.dict()`, `parse_obj()` — это Pydantic v1.
-- ❌ изменяемые значения по умолчанию → `Field(default_factory=...)`.
+- Три схемы: Create / Out / Update; `extra="forbid"` на входе.
+- `from_attributes=True` — только для выходных; `Annotated`/`field_validator`.
+- ❌ `class Config`, `orm_mode`, `.dict()`, `parse_obj()` (Pydantic v1); изменяемые дефолты.
 
 Подробно: [references/pydantic-v2.md](references/pydantic-v2.md).
 
 ## Асинхронность
 
-| ❌ Запрещено | ✅ Замена |
+| ❌ | ✅ |
 |---|---|
 | `requests.get()` | `httpx.AsyncClient` |
 | `time.sleep()` | `await asyncio.sleep()` |
-| `psycopg2`, `sqlite3` | `asyncpg` + SQLAlchemy async |
+| `psycopg2`/`sqlite3` | `asyncpg` + SQLAlchemy async |
 | `open()` | `aiofiles.open()` |
 | блокирующий SDK | `run_in_threadpool` |
 
-- `async def` — если есть `await`; иначе обычный `def` (FastAPI уведёт в threadpool).
-- На все внешние вызовы — таймауты (`httpx`/`asyncio.timeout`).
-- Тяжёлая работа — не в `BackgroundTasks`, а в очереди/Django Tasks.
+- `async def` — если есть `await`; иначе `def` (FastAPI уведёт в threadpool).
+- Таймауты на внешние вызовы; тяжёлое — в очередь/Django Tasks, не в `BackgroundTasks`.
 
 ## Обработка ошибок
 
-```python
-class DomainError(Exception): ...
-class PaymentNotFoundError(DomainError): ...
+Единый формат — **RFC 7807** (`application/problem+json`); контракт — `api-design`.
 
+```python
 @app.exception_handler(DomainError)
 async def domain_error_handler(request: Request, exc: DomainError) -> JSONResponse:
     status = {PaymentNotFoundError: 404}.get(type(exc), 400)
-    return JSONResponse(status_code=status, content={"code": type(exc).__name__, "detail": str(exc)})
-
-@app.exception_handler(Exception)
-async def unhandled_handler(request: Request, exc: Exception) -> JSONResponse:
-    logger.exception("unhandled_error")
-    return JSONResponse(status_code=500, content={"code": "internal_error", "detail": "Internal Server Error"})
+    return problem(request, status=status, code=type(exc).__name__.upper(), detail=str(exc))
 ```
 
 - В сервисе — только доменные исключения; `HTTPException` запрещён.
-- Глобальные handlers: `DomainError`, `StarletteHTTPException`,
-  `RequestValidationError`, `Exception`.
-- Стектрейс и детали — только в логи; клиенту — безопасное сообщение.
+- Handlers: `DomainError`, `StarletteHTTPException`, `RequestValidationError`, `Exception`.
+- Формат: `type/title/status/detail/instance` + `code`/`request_id`/`errors`.
+- Стектрейс и детали — только в логи.
 
 Подробно: [references/errors.md](references/errors.md).
 
 ## Конфигурация и логирование
 
-```python
-from pydantic_settings import BaseSettings, SettingsConfigDict
-
-class Settings(BaseSettings):
-    database_url: str
-    secret_key: SecretStr
-    debug: bool = False
-    model_config = SettingsConfigDict(env_file=".env")
-
-settings = Settings()
-```
-
-- `os.getenv()` вне `config.py` запрещён; секреты — из окружения.
-- structlog: события `snake_case`, параметры `key=value`, без `print`/f-строк.
-- `request_id` — middleware + `structlog.contextvars`, очищать в `finally`.
+- `pydantic-settings`; `os.getenv()` вне `config.py` запрещён; секреты из env.
+- structlog: события `snake_case`, `key=value`, без `print`/f-строк.
+- `request_id` — middleware + `contextvars`, очищать в `finally`.
 
 ## Тестирование
 
-Политика: **BDD — основное сквозное покрытие**; unit — логика вне BDD и
-критичные ветки. Unit не дублирует BDD. HTTP-слой проверяет BDD.
+Политика: **BDD — покрытие**; unit — пробелы и критичные ветки; HTTP — BDD.
 
-```python
-from unittest.mock import AsyncMock
-import pytest
-
-async def test_get_payment_raises_when_missing() -> None:
-    repo = AsyncMock()
-    repo.get_with_account.return_value = None
-    service = PaymentService(repo=repo)
-
-    with pytest.raises(PaymentNotFoundError):
-        await service.get_payment(UUID(int=1))
-
-    repo.get_with_account.assert_awaited_once()
-```
-
-- pytest-функции и фикстуры; зависимости — `AsyncMock`.
+- pytest-функции/фикстуры; зависимости — `AsyncMock`.
 - **Запрещено в unit:** `TestClient`, `httpx.AsyncClient` по приложению, реальная БД.
-- Тестируем: бизнес-логику сервисов, маппинг ошибок, ветвления. Не тестируем:
-  Pydantic-валидацию, простой CRUD, HTTP-статусы (BDD).
+- Тестируем логику сервисов и маппинг ошибок; не тестируем Pydantic/CRUD/статусы.
 
 Подробно: [references/testing.md](references/testing.md).
 
 ## Документирование
 
-- Docstring эндпоинтов — **English**, это `description` в OpenAPI/ReDoc.
-- `summary` — из имени функции или `summary=`; указывать коды и ошибки.
+- Docstring эндпоинтов — **English** (`description` в OpenAPI/ReDoc); указывать коды/ошибки.
 - Сервисы — «почему» + ограничения; репозитории — смысл запроса.
-- Не документировать `__init__`, простой CRUD.
-
-```python
-@router.get("/{payment_id}", response_model=PaymentOut)
-async def get_payment(...) -> PaymentOut:
-    """Return a single payment with its account.
-
-    Raises:
-        404: Payment not found.
-    """
-```
-
-Общая матрица — в навыке `python`, `references/documentation.md`.
+- Не документировать `__init__`, простой CRUD. Матрица — `python/references/documentation.md`.
 
 ## Безопасность
 
-- Пароли — `argon2`/`bcrypt`, не в открытом виде.
-- JWT: короткий срок жизни, алгоритм зафиксирован, секрет из env.
-- `OAuth2PasswordBearer` + `get_current_user`; права проверять на каждом роуте.
-- CORS — только разрешённые origin; не `*` с credentials.
-- Docs (`/docs`, `/openapi.json`) отключать в проде.
-- Валидация входа (Pydantic), параметризованный SQL, секреты не в логах.
+- Пароли — `argon2`/`bcrypt`; JWT — короткий срок, зафиксированный алгоритм, секрет из env.
+- `OAuth2PasswordBearer` + `get_current_user`; права на каждом роуте.
+- CORS — только разрешённые origin; docs отключать в проде.
+- Валидация входа, параметризованный SQL, секреты не в логах.
 
-Подробно: [references/security.md](references/security.md).
+Подробно: [references/security.md](references/security.md) и навык `security`.
 
 ## Инструменты
 
@@ -324,52 +182,48 @@ docker compose exec fastapi uv run pytest -v
 
 ## Запрещённые паттерны
 
-| ❌ Запрещено | ✅ Правильно |
+| ❌ | ✅ |
 |---|---|
-| SQL/бизнес-логика в роутере | SQL в repository, логика в service |
-| `service = PaymentService(db)` в роутере | `service: PaymentService = Depends(...)` |
-| `HTTPException` в сервисе | Доменное исключение + handler |
-| `commit()`/`rollback()` в репозитории | Транзакция в сервисе (если запись согласована) |
-| `create_all`/Alembic/свои миграции | Схема и миграции — Django |
-| Ленивая загрузка связей в async | `selectinload`/`joinedload`, `lazy="raise"` |
-| `class Config` / `orm_mode` / `.dict()` | `ConfigDict` / `from_attributes` / `model_dump()` |
+| SQL/логика в роутере | repository/service |
+| `PaymentService(db)` в роутере | `Depends(...)` |
+| `HTTPException` в сервисе | доменное исключение + handler |
+| `commit()` в репозитории | транзакция в сервисе |
+| `create_all`/Alembic | схема/миграции — Django |
+| ленивая загрузка в async | `selectinload`/`joinedload`, `lazy="raise"` |
+| `class Config`/`orm_mode`/`.dict()` | `ConfigDict`/`from_attributes`/`model_dump()` |
 | `requests`/`time.sleep`/sync-драйверы | `httpx`/`asyncio.sleep`/`asyncpg` |
-| `print()` / f-строки в логах | `logger.info("event", key=value)` |
-| `TestClient` в unit-тестах | `AsyncMock` зависимостей; HTTP — BDD |
+| `print()`/f-строки в логах | `logger.info("event", key=value)` |
+| `TestClient` в unit | `AsyncMock`; HTTP — BDD |
 | `os.getenv()` вне config | `pydantic-settings` |
-| Стектрейс/детали в ответе | Общий handler + лог |
+| стектрейс в ответе | общий handler + лог |
 
 ## Чек-лист code review
 
 - [ ] Router тонкий, один вызов сервиса, зависимости через `Depends`.
 - [ ] Бизнес-логика в сервисе; сервис не знает про `Request`.
 - [ ] Репозиторий — только SQLAlchemy; без `commit`/`rollback`.
-- [ ] Схема БД не дублируется: нет `create_all`/миграций в FastAPI.
-- [ ] Связи загружаются явно (нет ленивых запросов/N+1).
+- [ ] Нет `create_all`/миграций в FastAPI.
+- [ ] Связи загружаются явно (нет N+1).
 - [ ] Pydantic v2: `extra="forbid"` на входе, `from_attributes` на выходе.
-- [ ] Доменные исключения; глобальные handlers зарегистрированы.
+- [ ] Доменные исключения; handlers зарегистрированы (RFC 7807).
 - [ ] Нет блокирующих вызовов в async; таймауты заданы.
 - [ ] Секреты из env; не логируются.
-- [ ] Docstring эндпоинтов на английском, пригодны для ReDoc.
-- [ ] Unit-тесты не дублируют BDD; зависимости `AsyncMock`; нет `TestClient`.
-- [ ] `ruff check`, `ruff format --check`, `pyright`, тесты проходят.
+- [ ] Docstring эндпоинтов на английском (ReDoc).
+- [ ] Unit не дублирует BDD; нет `TestClient`; `ruff`/`pyright`/тесты проходят.
 
 ## Справочники
 
-| Тема | Reference | Загружать когда |
+| Тема | Reference | Когда |
 |---|---|---|
-| Архитектура, слои, DI, lifespan | [references/architecture.md](references/architecture.md) | Проектирование роутеров/сервисов/структуры |
-| Доступ к данным | [references/data-access.md](references/data-access.md) | Сессии, ORM/Core, read-only, eager loading |
-| Pydantic v2 | [references/pydantic-v2.md](references/pydantic-v2.md) | Схемы, валидаторы, настройки |
-| Ошибки | [references/errors.md](references/errors.md) | Доменные исключения, global handlers, middleware |
-| Безопасность | [references/security.md](references/security.md) | JWT, OAuth2, CORS, docs, hashing |
-| Тестирование | [references/testing.md](references/testing.md) | unit-тесты сервисов, моки, границы BDD |
+| Архитектура, слои, DI, lifespan | [references/architecture.md](references/architecture.md) | Проектирование |
+| Доступ к данным | [references/data-access.md](references/data-access.md) | Сессии, ORM/Core, read-only |
+| Pydantic v2 | [references/pydantic-v2.md](references/pydantic-v2.md) | Схемы, валидаторы |
+| Ошибки | [references/errors.md](references/errors.md) | RFC 7807, handlers |
+| Безопасность | [references/security.md](references/security.md) | JWT, CORS, docs, hashing |
+| Тестирование | [references/testing.md](references/testing.md) | unit, моки, BDD |
 
 ## Связанные навыки
 
-- `python` — общие практики языка.
-- `django` — владелец схемы и миграций.
-- `python-testing` / `pytest-bdd` — тестовая инфраструктура и BDD.
-- `security` — расширенный чек-лист безопасности.
-- `api-design` — REST, версионирование, пагинация, OpenAPI.
-- `postgres` — индексы, планы, производительность БД.
+- `python` — общие практики; `django` — владелец схемы.
+- `python-testing`/`pytest-bdd` — тесты; `security` — безопасность.
+- `api-design` — REST, версионирование, OpenAPI; `postgres` — производительность.
