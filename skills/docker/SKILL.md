@@ -9,7 +9,7 @@ description: >
 license: MIT
 compatibility: opencode
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   domain: devops
   triggers: Docker, Dockerfile, docker-compose, compose, image, multi-stage, .dockerignore, healthcheck, container
   role: specialist

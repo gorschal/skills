@@ -10,7 +10,7 @@ description: >
 license: MIT
 compatibility: opencode
 metadata:
-  version: "1.0.0"
+  version: "1.1.0"
   domain: blockchain
   triggers: Solidity, Foundry, forge, cast, anvil, smart contract, EVM, ERC20, OpenZeppelin, reentrancy, slither, gas, UUPS
   role: specialist

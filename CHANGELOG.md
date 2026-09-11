@@ -23,12 +23,20 @@
 | `migration-safety` | 1.0.0  | безопасные Django-миграции (zero-downtime, backfill)                 |
 | `api-design`       | 1.0.0  | REST, пагинация, ошибки (RFC 7807), версионирование, OpenAPI         |
 | `python-testing`   | 1.0.0  | pytest unit/integration, моки, async, антипаттерны                   |
-| `documentation`    | 1.0.0  | README, ADR, аудит доков                                             |
+| `documentation`    | 1.2.0  | README, ARCHITECTURE.md, ADR, AGENTS.md/CLAUDE.md, аудит доков      |
 | `git-commits`      | 1.0.0  | атомарные коммиты, ветвление, Conventional Commits                   |
 | `python-audit`     | 1.0.0  | аудит готовности: статанализ, 8 испытаний, баллы                     |
-| `solidity`         | 1.0.0  | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит             |
-| `docker`           | 1.0.0  | Dockerfile (multi-stage, non-root), docker-compose                   |
+| `solidity`         | 1.1.0  | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит             |
+| `docker`           | 1.1.0  | Dockerfile (3 стадии), docker-compose (anchors, watch)               |
 | `javascript`       | 1.0.0  | базовые принципы JS/Node (ES2023+, async, ESM)                       |
 | `php`              | 1.0.0  | базовые принципы PHP (PSR-12, слои, безопасность, платформы)         |
 
 ## История
+
+- **2026-09-11** — `documentation` 1.2.0: добавлен ARCHITECTURE.md
+  (`references/architecture.md`) — устройство системы, границы, потоки.
+- **2026-09-11** — `documentation` 1.1.0: добавлен AGENTS.md/CLAUDE.md
+  (`references/agents.md`).
+- **2026-09-11** — `solidity` 1.1.0, `docker` 1.1.0: приведены к реальным
+  конвенциям (Foundry: `tests/`/`scripts/`/`deployments/`, anvil-форк; Docker:
+  стадии `develop`/`prerelease`/`production`, anchors + `develop.watch`).

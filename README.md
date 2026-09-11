@@ -27,7 +27,7 @@ Python, Django, FastAPI, FastStream, aiogram и сквозные темы (бе�
 | `migration-safety` | безопасные Django-миграции (zero-downtime, backfill)                 |
 | `api-design`       | REST, пагинация, ошибки (RFC 7807), версионирование, OpenAPI         |
 | `python-testing`   | pytest unit/integration, моки, async, антипаттерны                   |
-| `documentation`    | README, ADR, аудит доков                                             |
+| `documentation`    | README, ARCHITECTURE.md, ADR, AGENTS.md/CLAUDE.md, аудит доков       |
 | `git-commits`      | атомарные коммиты, ветвление, Conventional Commits                   |
 | `python-audit`     | аудит готовности: статанализ, 8 испытаний, баллы                     |
 | `solidity`         | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит             |

@@ -2,14 +2,16 @@
 name: documentation
 description: >
   Use when writing or auditing project documentation: README (purpose, quick
-  start, env, deploy note) and ADR (architecture decision records). Триггеры:
-  документация, README, ADR, architecture decision, docs audit, quick start,
-  переменные окружения, деплой-заметка, почему так. Docstrings — навык python.
-  AGENTS.md/CLAUDE.md не рассматриваются.
+  start, env, deploy note), ARCHITECTURE.md (components, boundaries, data
+  ownership, flows), ADR (architecture decision records), and AGENTS.md /
+  CLAUDE.md (rules for AI agents). Триггеры: документация, README,
+  ARCHITECTURE.md, ADR, architecture decision, AGENTS.md, CLAUDE.md, docs audit,
+  quick start, переменные окружения, деплой-заметка, почему так.
+  Docstrings — навык python.
 license: MIT
 compatibility: opencode
 metadata:
-  version: "1.0.0"
+  version: "1.2.0"
   domain: process
   triggers: documentation, README, ADR, architecture decision, docs audit, quick start, deploy note
   role: specialist
@@ -20,8 +22,9 @@ metadata:
 
 # Documentation
 
-README и ADR — страховка «будущего тебя» и топливо для агентов. Цель: за минуту
-понять, что это, как запустить и **почему** так решено.
+README, ARCHITECTURE.md, ADR и AGENTS.md/CLAUDE.md — страховка «будущего тебя» и
+топливо для агентов. Цель: за минуту понять, что это, как запустить и **почему**
+так решено.
 
 > Docstrings (Google-style, матрица по артефактам) — в навыке `python`,
 > `references/documentation.md`.
@@ -29,7 +32,9 @@ README и ADR — страховка «будущего тебя» и топли
 ## Когда применять
 
 - Новый проект без README; README устарел/врёт.
+- Нужно зафиксировать устройство системы (монорепозиторий/несколько сервисов).
 - Принято нетривиальное решение → ADR.
+- Нет или рассинхронизированы AGENTS.md и CLAUDE.md.
 - Аудит документации (что отсутствует/устарело).
 
 ## Принципы
@@ -68,10 +73,8 @@ cp .env.example .env
 python manage.py migrate        # Django; для FastAPI — свой шаг миграций
 python manage.py runserver      # или: uvicorn app.main:app --reload
 ```
-````
 
 ## Переменные окружения
-
 | Переменная     | Обязательна | По умолчанию | Назначение          |
 | -------------- | ----------- | ------------ | ------------------- |
 | `DATABASE_URL` | да          | —            | DSN Postgres        |
@@ -94,6 +97,17 @@ python manage.py runserver      # или: uvicorn app.main:app --reload
 - Канонический пример — README сервиса `aneepay-main`.
 
 Подробно: [references/readme.md](references/readme.md).
+
+## ARCHITECTURE.md
+
+Описывает **текущее устройство**: компоненты и границы, владение данными, потоки
+(mermaid sequence), модель данных (ERD), инварианты; ссылки на ADR. Нужен для
+монорепозитория/нескольких сервисов; для одиночного сервиса достаточно README.
+
+- README → ссылается сюда; ADR → «почему»; ARCHITECTURE → «как сейчас».
+- Не дублировать README и не пересказывать код.
+
+Подробно: [references/architecture.md](references/architecture.md).
 
 ## ADR
 
@@ -131,9 +145,22 @@ FastAPI читает через SQLAlchemy ORM поверх существующ
 ## Последствия
 - (+) Нет дублирования схемы.
 - (−) Маппинг нужно синхронизировать с Django.
-````
+```
 
 Подробно: [references/adr.md](references/adr.md).
+
+## AGENTS.md / CLAUDE.md
+
+Память проекта для агентов: opencode читает `AGENTS.md`, Claude Code — `CLAUDE.md`.
+Принцип — **кратко и проверяемо**; каждый пункт проверяем командой/гейтом.
+
+- Писать: команды запуска/тестов/линта, нерушимые правила, неочевидные соглашения,
+  ссылки на ARCHITECTURE/ADR, DoD.
+- НЕ писать: пересказ кода, общие фразы, дубли README, неактуальное.
+- Синхронизация `AGENTS.md` ↔ `CLAUDE.md`: symlink / один источник + указатель
+  (рекомендую) / копия + diff; выбор зафиксировать в ADR.
+
+Подробно: [references/agents.md](references/agents.md).
 
 ## Аудит документации
 
@@ -168,9 +195,11 @@ FastAPI читает через SQLAlchemy ORM поверх существующ
 
 - [ ] README: назначение, стек, quick start, env, запуск, деплой-заметка, ссылка на архитектуру.
 - [ ] Команды и env в README реально существуют в коде.
+- [ ] Устройство монорепозитория зафиксировано в ARCHITECTURE.md (границы, данные, потоки).
 - [ ] Нетривиальные решения зафиксированы в `docs/adr/`.
 - [ ] ADR содержат контекст, решение, альтернативы, последствия, статус.
 - [ ] Принятые ADR не редактировались; замены помечены `Superseded`.
+- [ ] AGENTS.md/CLAUDE.md синхронизированы; правила проверяемы.
 - [ ] Нет устаревших доков, противоречащих коду.
 - [ ] Документируем «почему», без воды.
 
@@ -179,7 +208,9 @@ FastAPI читает через SQLAlchemy ORM поверх существующ
 | Тема        | Reference                                    | Загружать когда                |
 | ----------- | -------------------------------------------- | ------------------------------ |
 | README      | [references/readme.md](references/readme.md) | Написание/ревью README         |
+| ARCHITECTURE.md | [references/architecture.md](references/architecture.md) | Устройство системы, границы, потоки |
 | ADR         | [references/adr.md](references/adr.md)       | Фиксация архитектурных решений |
+| AGENTS.md / CLAUDE.md | [references/agents.md](references/agents.md) | Документация для агентов |
 | Аудит доков | [references/audit.md](references/audit.md)   | Формат отчёта, приоритеты      |
 
 ## Связанные навыки
