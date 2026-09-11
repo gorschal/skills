@@ -30,6 +30,10 @@ Python, Django, FastAPI, FastStream, aiogram и сквозные темы (бе�
 | `documentation` | README, ADR, аудит доков |
 | `git-commits` | атомарные коммиты, ветвление, Conventional Commits |
 | `python-audit` | аудит готовности: статанализ, 8 испытаний, баллы |
+| `solidity` | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит |
+| `docker` | Dockerfile (multi-stage, non-root), docker-compose |
+| `javascript` | базовые принципы JS/Node (ES2023+, async, ESM) |
+| `php` | базовые принципы PHP (PSR-12, слои, безопасность, платформы) |
 
 Версии и история — в [CHANGELOG.md](CHANGELOG.md); план и решения — в
 [ROADMAP.md](ROADMAP.md).
@@ -53,7 +57,11 @@ skills/
 ├── python-testing/
 ├── documentation/
 ├── git-commits/
-└── python-audit/
+├── python-audit/
+├── solidity/
+├── docker/
+├── javascript/
+└── php/
 ```
 
 ## Подключение
@@ -91,7 +99,46 @@ skills/
 - **Правила** делятся на инварианты (всегда) и политики проекта (с обоснованием);
   конфликты источников разрешаются в пользу специфики проекта.
 
+## Плагины (опционально)
+
+Плагины — это JS/TS, который выполняется при старте opencode и может
+трансформировать промпт/инструменты. Ставить только доверенные, фиксировать
+версии, начинать с минимума. Каталог — [opencode.ai/docs/ecosystem](https://opencode.ai/docs/ecosystem).
+
+**Рекомендуемые:**
+
+| Плагин | Зачем |
+|---|---|
+| `opencode-vibeguard` | Редактирует секреты/PII в плейсхолдеры до отправки в LLM, восстанавливает локально |
+| `opencode-dynamic-context-pruning` | Чистит устаревшие tool-output'ы → экономия токенов |
+| `opencode-websearch-cited` | Нативный веб-поиск со ссылками |
+| `opencode-notify` | Уведомления о завершении/ошибках (в desktop-приложении уже есть) |
+
+**Ситуативно:** `opencode-shell-strategy` (защита от TTY-зависаний),
+`opencode-pty` (долгоживущие процессы), `opencode-worktree` (git worktree),
+`opencode-scheduler` (регулярные задачи), `opencode-supermemory` (память между
+сессиями), `@plannotator/opencode` (ревью планов), `opencode-firecrawl`/
+`opencode-tavily` (веб-скрейпинг), `opencode-sentry-monitor` (Sentry).
+
+**Не нужно:** `opencode-triage`/`opencode-skillful` — opencode уже лениво грузит
+тела навыков, экономится лишь список описаний (при 14 навыках выгода скромная);
+`oh-my-opencode` — большой бандл, брать только целиком осознанно.
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "lsp": true,
+  "plugin": [
+    "opencode-vibeguard",
+    "opencode-dynamic-context-pruning",
+    "opencode-websearch-cited"
+  ]
+}
+```
+
+Имена npm-пакетов могут отличаться от имён репозиториев — сверять на npm и
+просматривать исходники перед установкой.
+
 ## Документы
 
-- [ROADMAP.md](ROADMAP.md) — план, инвентаризация источников, фазы, DoD.
 - [CHANGELOG.md](CHANGELOG.md) — версии навыков и история.

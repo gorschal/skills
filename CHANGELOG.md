@@ -25,10 +25,9 @@
 | `documentation` | 1.0.0 | README, ADR, аудит доков |
 | `git-commits` | 1.0.0 | атомарные коммиты, ветвление, Conventional Commits |
 | `python-audit` | 1.0.0 | аудит готовности: статанализ, 8 испытаний, баллы |
+| `solidity` | 1.0.0 | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит |
+| `docker` | 1.0.0 | Dockerfile (multi-stage, non-root), docker-compose |
+| `javascript` | 1.0.0 | базовые принципы JS/Node (ES2023+, async, ESM) |
+| `php` | 1.0.0 | базовые принципы PHP (PSR-12, слои, безопасность, платформы) |
 
 ## История
-
-- **2026-09-11** — Фаза 6: «caveman»-проход по всем SKILL.md (≤ ~250 строк),
-  сквозная проверка на противоречия, RFC 7807 как единый формат ошибок,
-  владение схемой — Django, BDD-first тест-политика. Навыки `python` (1.2.0),
-  `django` (1.1.0), `fastapi` (1.1.0).
