@@ -68,6 +68,7 @@ async def process_payment_handler(
 - Handler не содержит бизнес-логики и прямых обращений к БД/брокеру.
 - Сервис не знает про NATS (subject, headers); принимает данные.
 - Репозиторий не коммитит; транзакция — в сервисе.
+- Схема/миграции — Django; сервис не создаёт таблицы (`create_all`/свои миграции запрещены).
 
 Подробно: [references/architecture.md](references/architecture.md).
 

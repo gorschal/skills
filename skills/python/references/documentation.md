@@ -1,9 +1,7 @@
-# Документирование
+# Документирование (docstrings)
 
-Документация — страховка «будущего тебя» и топливо для агентов. Документируем
-**«почему»**, а не пересказываем код. Устаревший док хуже отсутствующего.
-
-Уровень детализации и язык зависят от артефакта — см. матрицу ниже.
+Docstrings — в коде, объясняют **«почему»**, а не пересказывают сигнатуру.
+README и ADR — в навыке `documentation`.
 
 ## Матрица docstring по артефактам
 
@@ -11,7 +9,7 @@
 |---|---|---|---|---|
 | Unit-тесты | Минимально, по существу | RU/EN | Разработчик | Одна строка для нетривиального кейса |
 | Django views | Максимально подробно: что, зачем, side effects | RU | Мейнтейнер | Поведение, вход/выход, побочные эффекты |
-| FastAPI endpoints | Как OpenAPI-описание (попадает в ReDoc) | EN | Потребитель API | Summary/description, коды, ошибки, примеры |
+| FastAPI endpoints | Как OpenAPI-описание (попадает в ReDoc) | EN | Потребитель API | Summary/description, коды, ошибки |
 | Сервисы | «Почему» + ограничения | RU | Мейнтейнер | Args/Returns/Raises/Side Effects |
 | Репозитории | Сложные запросы и маппинги | RU | Мейнтейнер | Смысл запроса, особенности |
 | Модели/схемы | Нетривиальные поля и валидаторы | RU | Мейнтейнер | Инварианты, ограничения |
@@ -24,7 +22,6 @@ async def create_user(self, email: str, password: str) -> User:
     """Создаёт неактивного пользователя.
 
     Пользователь получает is_active=False до верификации email.
-    Пароль хешируется и не хранится в открытом виде.
 
     Args:
         email: Адрес электронной почты (уникальный).
@@ -46,9 +43,6 @@ async def create_user(self, email: str, password: str) -> User:
 
 ## Django views — подробно
 
-Аудитория — мейнтейнер. Описываем поведение, вход/выход, побочные эффекты и
-неочевидные решения.
-
 ```python
 def signup_view(request: HttpRequest) -> HttpResponse:
     """Обрабатывает регистрацию пользователя.
@@ -59,18 +53,15 @@ def signup_view(request: HttpRequest) -> HttpResponse:
     """
 ```
 
-## FastAPI endpoints — OpenAPI/ReDoc (English)
+## FastAPI endpoints — English (OpenAPI/ReDoc)
 
-Docstring эндпоинта становится `description` в OpenAPI и отображается в ReDoc.
-Пишем на английском, для внешнего потребителя API — не для мейнтейнера.
+Docstring эндпоинта становится `description` в OpenAPI. Пишем на английском, для
+внешнего потребителя API; указываем коды/ошибки.
 
 ```python
 @router.post("/users", response_model=UserOut, status_code=201)
 async def create_user(payload: UserCreate, service: UserService = Depends(get_user_service)) -> UserOut:
     """Create a new inactive user.
-
-    Registers a user with `is_active=False` until the email is verified.
-    Returns 409 if the email is already registered.
 
     Raises:
         409: Email already registered.
@@ -78,13 +69,10 @@ async def create_user(payload: UserCreate, service: UserService = Depends(get_us
     """
 ```
 
-- `summary` — из имени функции или параметра `summary=`; `description` — docstring.
-- Указываем коды ответов и ошибки, т.к. это контракт API.
-- Примеры и схемы — через `response_model`/`openapi_extra`, не в docstring.
+- `summary` — из имени функции или `summary=`; `description` — docstring.
+- Примеры/схемы — через `response_model`/`openapi_extra`, не в docstring.
 
 ## Unit-тесты — кратко
-
-Одна строка для нетривиального кейса; не пересказывать очевидное.
 
 ```python
 async def test_rejects_expired_token() -> None:
@@ -113,60 +101,12 @@ def create_user(self, email: str) -> User:
     """
 ```
 
-## README
-
-Структура (в корне проекта):
-
-1. **Назначение** — что и зачем, 2–3 строки.
-2. **Quick start** — установка, запуск, проверка (реальные команды).
-3. **Переменные окружения** — полный список (имя, назначение, пример).
-4. **Запуск** — dev и prod, зависимости (БД, брокер).
-5. **Деплой-заметка** — systemd/nginx/docker, особенности.
-6. **Архитектура** — ссылка на схему слоёв.
-
-Правила: команды и env должны **реально существовать** в коде; никакой воды.
-
-## ADR (Architecture Decision Records)
-
-Фиксируют **почему** принято решение. Лёгкий формат MADR:
-
-```
-docs/adr/
-├── 0001-use-postgres.md
-└── 0002-async-sqlalchemy.md
-```
-
-```markdown
-# ADR 0002: Доступ к данным во FastAPI
-
-## Статус
-Принято (2026-01-01)
-
-## Контекст
-Схемой и миграциями владеет Django; FastAPI — потребитель.
-
-## Решение
-FastAPI читает через SQLAlchemy ORM поверх существующих таблиц, без миграций.
-
-## Последствия
-+ Нет дублирования схемы и миграций.
-- Маппинг нужно синхронизировать с изменениями Django.
-```
-
-Писать ADR для: выбора БД, async vs sync, схемы транзакций, политик проекта
-(например, ORM vs Core, unit↔BDD).
-
-## Документация для агентов (AGENTS.md/CLAUDE.md)
-
-- Кратко и проверяемо: команды запуска/тестов/линта, границы слоёв, запреты.
-- Не дублировать README; при расхождении — синхронизировать или удалять.
-
 ## Принципы
 
-- **«Почему», а не «что».** Код говорит, *что*; док объясняет *почему*.
-- **Близко к коду.** Docstrings — в коде; README — в корне; ADR — в `docs/adr/`.
+- **«Почему», а не «что».** Код говорит, *что*; docstring объясняет *почему*.
+- **Близко к коду.** Docstrings — в коде.
 - **Аудитория определяет формат.** См. матрицу.
-- **Устаревшее — помечать или удалять.** Не оставлять враньё.
+- **Устаревшее — помечать или удалять.**
 
 ## Чек-лист
 
@@ -175,5 +115,7 @@ FastAPI читает через SQLAlchemy ORM поверх существующ
 - [ ] Django views — подробно, с побочными эффектами.
 - [ ] Unit-тесты — кратко, без пересказа очевидного.
 - [ ] Docstring не дублирует сигнатуру, объясняет «почему».
-- [ ] README содержит quick start и полный список env.
-- [ ] Нетривиальные решения зафиксированы в ADR.
+
+## См. также
+
+- `documentation` — README, ADR.

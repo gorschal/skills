@@ -6,7 +6,7 @@ read-only потребитель: не создаёт таблицы, не пи�
 ## Что запрещено
 
 - `Base.metadata.create_all()` — таблицы создаёт Django.
-- Alembic и любые миграции в FastAPI.
+- Свои миграции в FastAPI (схема принадлежит Django).
 - `session.commit()`/`rollback()` в репозитории.
 - Запись в БД без согласованного контракта с владельцем.
 
@@ -45,7 +45,7 @@ class Payment(Base):
 ```
 
 - Модель описывает только читаемые поля.
-- Никакого `create_all`/Alembic — Django остаётся источником истины.
+- Никакого `create_all`/своих миграций — Django остаётся источником истины.
 - Дрейф схемы ловится контрактным тестом (сверка колонок с БД).
 
 **B. `automap_base`** — рефлексия схемы без описания колонок:
@@ -151,7 +151,7 @@ class PaymentService:
 
 | ❌ | ✅ |
 |---|---|
-| `create_all`/Alembic в FastAPI | Схема и миграции — Django |
+| `create_all`/свои миграции в FastAPI | Схема и миграции — Django |
 | `commit()` в репозитории | Транзакция в сервисе (если согласована запись) |
 | Ленивая загрузка в async | `selectinload`/`joinedload`, `lazy="raise"` |
 | `Row` наружу | `TypedDict`/Pydantic |

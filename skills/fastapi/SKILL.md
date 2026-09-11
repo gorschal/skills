@@ -65,7 +65,7 @@ async def get_payment(payment_id: UUID, service: PaymentService = Depends(get_pa
 ```
 
 - Только SQLAlchemy (ORM поверх существующих таблиц / Core); возврат `None`/`TypedDict`/Pydantic/`list`.
-- ❌ `commit`/`rollback`, бизнес-логика в репозитории, `create_all`/Alembic (схема — Django).
+- ❌ `commit`/`rollback`, бизнес-логика в репозитории, `create_all`/свои миграции (схема — Django).
 
 Подробно: [references/architecture.md](references/architecture.md).
 
@@ -85,7 +85,7 @@ def get_payment_service(repo: PaymentRepository = Depends(get_payment_repository
 
 ## Доступ к данным (read-only)
 
-- **Схема и миграции — Django**; без `create_all`/Alembic; дрейф — контрактным тестом.
+- **Схема и миграции — Django**; без `create_all`/своих миграций; дрейф — контрактным тестом.
 - **ORM поверх существующих таблиц**; **Core** — для сложных/аналитических запросов.
 - Eager loading обязателен: `selectinload`/`joinedload`/`lazy="raise"`.
 - Запись — только по согласованному контракту с Django; транзакция в сервисе.
@@ -188,7 +188,7 @@ docker compose exec fastapi uv run pytest -v
 | `PaymentService(db)` в роутере | `Depends(...)` |
 | `HTTPException` в сервисе | доменное исключение + handler |
 | `commit()` в репозитории | транзакция в сервисе |
-| `create_all`/Alembic | схема/миграции — Django |
+| `create_all`/свои миграции | схема/миграции — Django |
 | ленивая загрузка в async | `selectinload`/`joinedload`, `lazy="raise"` |
 | `class Config`/`orm_mode`/`.dict()` | `ConfigDict`/`from_attributes`/`model_dump()` |
 | `requests`/`time.sleep`/sync-драйверы | `httpx`/`asyncio.sleep`/`asyncpg` |
