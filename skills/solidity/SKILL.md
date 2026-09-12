@@ -7,7 +7,7 @@ description: >
   fuzz/invariant tests, Slither. Триггеры: Solidity, Foundry, forge, cast, anvil,
   chisel, smart contract, EVM, ERC20, OpenZeppelin, reentrancy, slither, gas,
   upgradeable, UUPS, NatSpec. Безопасность — раздел ниже.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.1.0"

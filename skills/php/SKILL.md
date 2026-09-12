@@ -6,7 +6,7 @@ description: >
   platform rules for WooCommerce/OpenCart/PrestaShop. Триггеры: PHP, PSR-12,
   strict_types, PHPStan, Composer, WordPress, WooCommerce, OpenCart, PrestaShop.
   Непрофильный язык — только базовые принципы.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

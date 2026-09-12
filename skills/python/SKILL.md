@@ -8,7 +8,7 @@ description: >
   типизация, Pyright, mypy, asyncio, pytest, structlog, ruff, uv, pydantic,
   dataclass, рефакторинг Python, code review Python, безопасность Python.
   Для Django использовать навык django; для FastAPI — fastapi.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.2.0"

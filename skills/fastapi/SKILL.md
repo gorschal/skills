@@ -7,7 +7,7 @@ description: >
   Триггеры: FastAPI, APIRouter, Depends, Pydantic v2, SQLAlchemy async,
   asyncpg, httpx, structlog, OpenAPI, ReDoc, lifespan.
   Общие практики Python — навык python; владелец схемы БД — навык django.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.1.0"

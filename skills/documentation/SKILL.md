@@ -8,7 +8,7 @@ description: >
   ARCHITECTURE.md, ADR, architecture decision, AGENTS.md, CLAUDE.md, docs audit,
   quick start, переменные окружения, деплой-заметка, почему так.
   Docstrings — навык python.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.2.0"
@@ -75,6 +75,7 @@ python manage.py runserver      # или: uvicorn app.main:app --reload
 ```
 
 ## Переменные окружения
+
 | Переменная     | Обязательна | По умолчанию | Назначение          |
 | -------------- | ----------- | ------------ | ------------------- |
 | `DATABASE_URL` | да          | —            | DSN Postgres        |
@@ -85,7 +86,6 @@ python manage.py runserver      # или: uvicorn app.main:app --reload
 
 - systemd-юнит, `EnvironmentFile` с секретами (не в репозитории).
 - Перезапуск: `sudo systemctl restart project`; логи: `journalctl -u project -f`.
-
 ````
 
 - Длинные/опциональные блоки (команды, диаграммы, большие таблицы) — в `<details>`,
@@ -115,6 +115,7 @@ ADR — короткая запись о **принятом решении**: к
 Формат — лёгкий MADR.
 
 **Писать**, если решение:
+
 - трудно/дорого откатить (БД, фреймворк, аутентификация, формат API);
 - неочевидно («почему так, а не иначе»);
 - отвергает разумную альтернативу;
@@ -133,16 +134,20 @@ ADR — короткая запись о **принятом решении**: к
 - **Дата:** 2026-01-01
 
 ## Контекст
+
 Схемой и миграциями владеет Django; FastAPI — потребитель.
 
 ## Решение
+
 FastAPI читает через SQLAlchemy ORM поверх существующих таблиц, без миграций.
 
 ## Альтернативы
+
 - **Core-only** — отверг: ручной маппинг, дублирование.
 - **Свои миграции** — отверг: дублирование схемы.
 
 ## Последствия
+
 - (+) Нет дублирования схемы.
 - (−) Маппинг нужно синхронизировать с Django.
 ```
@@ -205,13 +210,13 @@ FastAPI читает через SQLAlchemy ORM поверх существующ
 
 ## Справочники
 
-| Тема        | Reference                                    | Загружать когда                |
-| ----------- | -------------------------------------------- | ------------------------------ |
-| README      | [references/readme.md](references/readme.md) | Написание/ревью README         |
-| ARCHITECTURE.md | [references/architecture.md](references/architecture.md) | Устройство системы, границы, потоки |
-| ADR         | [references/adr.md](references/adr.md)       | Фиксация архитектурных решений |
-| AGENTS.md / CLAUDE.md | [references/agents.md](references/agents.md) | Документация для агентов |
-| Аудит доков | [references/audit.md](references/audit.md)   | Формат отчёта, приоритеты      |
+| Тема                  | Reference                                                | Загружать когда                     |
+| --------------------- | -------------------------------------------------------- | ----------------------------------- |
+| README                | [references/readme.md](references/readme.md)             | Написание/ревью README              |
+| ARCHITECTURE.md       | [references/architecture.md](references/architecture.md) | Устройство системы, границы, потоки |
+| ADR                   | [references/adr.md](references/adr.md)                   | Фиксация архитектурных решений      |
+| AGENTS.md / CLAUDE.md | [references/agents.md](references/agents.md)             | Документация для агентов            |
+| Аудит доков           | [references/audit.md](references/audit.md)               | Формат отчёта, приоритеты           |
 
 ## Связанные навыки
 

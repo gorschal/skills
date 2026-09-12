@@ -7,7 +7,7 @@ description: >
   Триггеры: FastStream, NATS, JetStream, broker, subscriber, publisher,
   ack_policy, queue group, AsyncAPI, TestNatsBroker, event-driven.
   Для HTTP — навык fastapi; общие практики Python — python.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

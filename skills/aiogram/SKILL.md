@@ -6,7 +6,7 @@ description: >
   polling/webhook deploy, and tests. Триггеры: aiogram, Telegram bot, Router,
   Dispatcher, FSM, RedisStorage, callback_query, webhook, polling, flood control,
   TelegramRetryAfter, feed_update. Только aiogram 3.x.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

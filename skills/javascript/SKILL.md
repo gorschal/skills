@@ -5,7 +5,7 @@ description: >
   ESM modules, error handling, Node/browser APIs. Триггеры: JavaScript,
   ES2023, Node.js, async await, Promise, ESM, module, JSDoc, eslint, .js/.mjs/.cjs.
   Непрофильный язык — только базовые принципы; фреймворки (React/Vue) вне scope.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

@@ -37,12 +37,12 @@ ARCHITECTURE.md описывает **текущее устройство** си�
 
 ## Компоненты
 
-| Компонент | Роль | Технологии |
-|---|---|---|
-| `django` | лендинг, кабинет, слушатель блокчейна, webhook | Django, Postgres |
-| `fastapi` | JSON API создания платежей (read-only к БД) | FastAPI, SQLAlchemy |
-| `payment_listener` | подтверждение платежей, метрики, webhook | Django Tasks |
-| `metrics_exporter` | batch-экспорт Prometheus | Django |
+| Компонент          | Роль                                           | Технологии          |
+| ------------------ | ---------------------------------------------- | ------------------- |
+| `django`           | лендинг, кабинет, слушатель блокчейна, webhook | Django, Postgres    |
+| `fastapi`          | JSON API создания платежей (read-only к БД)    | FastAPI, SQLAlchemy |
+| `payment_listener` | подтверждение платежей, метрики, webhook       | Django Tasks        |
+| `metrics_exporter` | batch-экспорт Prometheus                       | Django              |
 
 ## Владение данными
 

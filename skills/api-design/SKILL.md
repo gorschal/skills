@@ -6,7 +6,7 @@ description: >
   and OpenAPI. Триггеры: API design, REST, OpenAPI, endpoint, pagination,
   cursor, versioning, status codes, RFC 7807, problem+json, idempotency key,
   resource modeling, contract. Реализация на FastAPI — навык fastapi.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

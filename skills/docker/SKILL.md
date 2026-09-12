@@ -6,7 +6,7 @@ description: >
   healthchecks, compose services/volumes/env, dev watch. Триггеры: Docker,
   Dockerfile, docker-compose, compose, image, multi-stage, .dockerignore,
   healthcheck, volume, container. Деплой под systemd/nginx — вне scope.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.1.0"

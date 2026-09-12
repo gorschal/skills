@@ -6,7 +6,7 @@ description: >
   coverage, factories, and test-quality anti-patterns. Триггеры: pytest, unit
   test, fixture, parametrize, mock, AsyncMock, patch, coverage, factory_boy,
   hypothesis, flaky test, test isolation. Для BDD/Gherkin — навык pytest-bdd.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

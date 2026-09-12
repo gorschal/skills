@@ -8,7 +8,7 @@ description: >
   JSONB, replication and backups. Триггеры: PostgreSQL, Postgres, EXPLAIN,
   pg_stat_statements, slow query, индекс, JSONB, VACUUM, autovacuum, pgbouncer,
   replication, PITR. Безопасность миграций — migration-safety; N+1 — django/fastapi.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

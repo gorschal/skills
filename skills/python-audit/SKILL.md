@@ -8,7 +8,7 @@ description: >
   деплою, MVP готовность, найти незавершённый код, критические проблемы,
   оценить законченность, production-ready. Уровень проекта, не диффа.
   Django-специфика — линза `django-lens`; безопасность — навык `security`.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

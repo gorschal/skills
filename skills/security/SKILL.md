@@ -7,7 +7,7 @@ description: >
   security review. Триггеры: security, OWASP, vulnerability, injection, XSS,
   CSRF, IDOR, SSRF, JWT, password hashing, secrets, bandit, semgrep, gitleaks,
   security audit. Фреймворк-специфика — навыки django/fastapi.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

@@ -8,7 +8,7 @@ description: >
   forms, migrations, makemigrations, atomic, on_commit, Django Tasks, enqueue,
   django-structlog.
   Общие практики Python — навык python; FastAPI — fastapi.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.1.0"

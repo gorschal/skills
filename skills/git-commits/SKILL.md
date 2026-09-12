@@ -6,7 +6,7 @@ description: >
   meaning, commit order, ready commands. Триггеры: коммиты, атомарные коммиты,
   разбей на коммиты, commit, staged/unstaged, git add, conventional commits,
   разложи изменения. Версия/CHANGELOG/тег — вне scope.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

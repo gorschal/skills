@@ -7,7 +7,7 @@ description: >
   Scenario Outline, step definition, given/when/then, Page Object, Selenium,
   Playwright, parsers, target_fixture, cucumber. Для unit-тестов — навык
   python-testing.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

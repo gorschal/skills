@@ -8,7 +8,7 @@ description: >
   Триггеры: Django migration, makemigrations, migrate, RunPython, AddIndexConcurrently,
   zero-downtime, lock_timeout, CONCURRENTLY, backfill, NOT VALID, блокировка таблицы.
   Подобрать индекс под запрос — навык postgres.
-license: MIT
+license: Proprietary
 compatibility: opencode
 metadata:
   version: "1.0.0"

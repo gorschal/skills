@@ -2,7 +2,7 @@
 
 [![opencode](https://img.shields.io/badge/-opencode-000000?style=flat)](https://opencode.ai)
 [![Python](https://img.shields.io/badge/-Python_3.12-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
-[![License](https://img.shields.io/badge/-MIT-green?style=flat)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/badge/-Proprietary-blue?style=flat)](LICENSE.txt)
 
 Набор навыков (agent skills) для **opencode** под Python-монорепозиторий:
 Python, Django, FastAPI, FastStream, aiogram и сквозные темы (безопасность, БД,
