@@ -35,8 +35,7 @@ Python, Django, FastAPI, FastStream, aiogram и сквозные темы (бе�
 | `javascript`       | базовые принципы JS/Node (ES2023+, async, ESM)                       |
 | `php`              | базовые принципы PHP (PSR-12, слои, безопасность, платформы)         |
 
-Версии и история — в [CHANGELOG.md](CHANGELOG.md); план и решения — в
-[ROADMAP.md](ROADMAP.md).
+Версии и история — в [CHANGELOG.md](CHANGELOG.md).
 
 ## Структура
 

@@ -6,13 +6,13 @@ description: >
   reentrancy, external calls, oracles, gas optimization, upgradeability (UUPS),
   fuzz/invariant tests, Slither. Триггеры: Solidity, Foundry, forge, cast, anvil,
   chisel, smart contract, EVM, ERC20, OpenZeppelin, reentrancy, slither, gas,
-  upgradeable, UUPS, NatSpec. Безопасность — раздел ниже.
+  upgradeable, UUPS, NatSpec, NatSpec-стиль, NatSpec-форматирование. Безопасность — раздел ниже.
 license: Proprietary
 compatibility: opencode
 metadata:
-  version: "1.1.0"
+  version: "1.2.0"
   domain: blockchain
-  triggers: Solidity, Foundry, forge, cast, anvil, smart contract, EVM, ERC20, OpenZeppelin, reentrancy, slither, gas, UUPS
+  triggers: Solidity, Foundry, forge, cast, anvil, smart contract, EVM, ERC20, OpenZeppelin, reentrancy, slither, gas, UUPS, NatSpec
   role: specialist
   scope: implementation
   output-format: code
@@ -94,6 +94,18 @@ fuzz = { runs = 256 }
 /// @notice ERC-20 с паузой
 contract SecureToken is ERC20, ReentrancyGuard { /* ... */ }
 ```
+
+### Форматирование NatSpec
+
+- Разделители блоков: `=` → `-` (`// ------------ Внешние функции ------------`).
+- Однострочные `/// @...` — не превращать в блок.
+- 2+ строки `/// @...` — превращать в блок `/** ... */`.
+- Существующие блоки нормализовать: `/**`, каждая строка ` * `, закрытие `*/`
+  под открытием.
+- Трогать только `src/`, `scripts/`, `tests/`; не трогать `lib/`; менять только
+  комментарии.
+
+Подробно: [references/natspec.md](references/natspec.md).
 
 ## Безопасность (критично)
 
@@ -186,6 +198,7 @@ function withdraw(uint256 amount) external nonReentrant {
 | Безопасность            | [references/security.md](references/security.md)           | access control, CEI, оракулы, табу |
 | Газ и апгрейды          | [references/gas-upgrade.md](references/gas-upgrade.md)     | оптимизация, UUPS, storage layout  |
 | Тесты и аудит           | [references/testing-audit.md](references/testing-audit.md) | fuzz/invariant, slither, деплой    |
+| Стиль NatSpec           | [references/natspec.md](references/natspec.md)             | форматирование `///` и `/** */`    |
 
 ## Связанные навыки
 
