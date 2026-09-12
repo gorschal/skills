@@ -26,13 +26,16 @@
 | `documentation`    | 1.2.0  | README, ARCHITECTURE.md, ADR, AGENTS.md/CLAUDE.md, аудит доков      |
 | `git-commits`      | 1.0.0  | атомарные коммиты, ветвление, Conventional Commits                   |
 | `python-audit`     | 1.0.0  | аудит готовности: статанализ, 8 испытаний, баллы                     |
-| `solidity`         | 1.1.0  | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит             |
+| `solidity`         | 1.2.0  | Solidity + Foundry: безопасность, газ, UUPS, тесты/аудит, NatSpec-стиль |
 | `docker`           | 1.1.0  | Dockerfile (3 стадии), docker-compose (anchors, watch)               |
 | `javascript`       | 1.0.0  | базовые принципы JS/Node (ES2023+, async, ESM)                       |
 | `php`              | 1.0.0  | базовые принципы PHP (PSR-12, слои, безопасность, платформы)         |
 
 ## История
 
+- **2026-09-12** — `solidity` 1.2.0: добавлен стиль NatSpec
+  (`references/natspec.md`) — форматирование `///` и `/** */`, границы
+  применения; новые триггеры в description.
 - **2026-09-11** — `documentation` 1.2.0: добавлен ARCHITECTURE.md
   (`references/architecture.md`) — устройство системы, границы, потоки.
 - **2026-09-11** — `documentation` 1.1.0: добавлен AGENTS.md/CLAUDE.md
